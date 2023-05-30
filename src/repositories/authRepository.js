@@ -68,16 +68,17 @@ export const findUserByEmail = async (email) => {
 };
 
 export const createUser = async (userData) => {
-  const { name, email, password } = userData;
-
   const client = await pool.connect();
-  try {
-    const result = await client.query({
-      text: "INSERT INTO users(name, email, password) VALUES($1, $2, $3)",
-      values: [name, email.toLowerCase(), password],
-    });
 
-    return result;
+  const columns = Object.keys(userData).join(", ");
+  const placeholders = Object.keys(userData)
+    .map((_, index) => `$${index + 1}`)
+    .join(", ");
+
+  const query = `INSERT INTO users(${columns}) VALUES(${placeholders})`;
+  try {
+    const response = await client.query(query, Object.values(userData));
+    return response.rows[0];
   } catch (err) {
     console.error("Error inserting new user", err);
     throw err;
