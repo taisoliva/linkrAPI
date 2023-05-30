@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
 });
 
 // Routes
-app.use("/auth", authRoute);
+app.use("/", authRoute);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
