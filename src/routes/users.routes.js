@@ -5,6 +5,6 @@ import verfifyJWT from "../middlewares/verifyJWT.js";
 
 const usersRouter = Router();
 
-usersRouter.get("/user/:id", verfifyJWT, validateIdAsParams, getUserProfileById);
+usersRouter.get("/user/:id", validateIdAsParams, getUserProfileById);
 
 export default usersRouter;

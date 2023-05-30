@@ -6,6 +6,7 @@ export async function getUserProfileById(req, res) {
         const { id } = req.params;
 
         const user = await findProfileByUserId(id);
+        if(user.rowCount <= 0) return res.sendStatus(422);
         const posts = await findPostsByUserId(id);
 
         const data = {
@@ -13,6 +14,8 @@ export async function getUserProfileById(req, res) {
             picture: user.rows[0].picture,
             posts: posts.rows
         }
+
+        res.send(data);
 
     } catch (err) {
         res.status(500).send(err.message);
