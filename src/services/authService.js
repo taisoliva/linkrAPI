@@ -1,7 +1,10 @@
 import bcrypt from "bcrypt";
 import * as authRepository from "../repositories/authRepository.js";
 import pkg from "jsonwebtoken";
-import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../configs/tokens.js";
+import {
+  ACCESS_TOKEN_SECRET,
+  REFRESH_TOKEN_SECRET,
+} from "../configs/tokens.js";
 const { sign, verify } = pkg;
 
 export const refreshTokenExpiresIn = 24 * 60 * 60 * 1000; // one day
@@ -18,6 +21,7 @@ export const generateTokens = (user) => {
         name: user.name,
         email: user.email,
         avatar: user.picture,
+        id: user.id,
       },
     },
     ACCESS_TOKEN_SECRET,
@@ -53,6 +57,7 @@ export const verifyRefreshToken = async (refreshToken) => {
       name: user.name,
       email: user.email,
       avatar: user.picture,
+      id: user.id,
     });
     return { foundUser, accessToken };
   } catch (error) {

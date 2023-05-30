@@ -1,7 +1,6 @@
 import { verify } from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET } from "../configs/tokens";
 
-
 const verifyJWT = (req, res, next) => {
   const authHeader = req.headers.authorization || req.headers.Authorization;
   if (!authHeader?.startsWith("Bearer ")) return res.sendStatus(401);
@@ -13,6 +12,7 @@ const verifyJWT = (req, res, next) => {
       name: decoded.UserInfo.name,
       email: decoded.UserInfo.email,
       avatar: decoded.UserInfo.avatar,
+      id: decoded.UserInfo.id,
     };
     next();
   });
