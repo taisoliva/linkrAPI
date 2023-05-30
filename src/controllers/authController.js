@@ -45,7 +45,7 @@ export const handleLogin = async (req, res) => {
       });
       return res.json({
         name: foundUser.name,
-        email: foundUser.email,
+        avatar: foundUser.picture,
         accessToken,
       });
     } else {
@@ -88,7 +88,7 @@ export const handleRefreshToken = async (req, res) => {
 
   res.json({
     name: foundUser.name,
-    email: foundUser.email,
+    avatar: foundUser.picture,
     accessToken,
   });
 };
