@@ -73,12 +73,10 @@ export const findUserByEmail = async (email) => {
 };
 
 export const createUser = async (userData) => {
-  const { name, email, password } = userData;
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(userData.password, 10);
 
   const result = await authRepository.createUser({
-    name,
-    email,
+    ...userData,
     password: hashedPassword,
   });
   return result;
