@@ -1,5 +1,5 @@
 import { verify } from "jsonwebtoken";
-import { ACCESS_TOKEN_SECRET } from "../configs/tokens";
+import { ACCESS_TOKEN_SECRET } from "../configs/tokens.js";
 
 const verifyJWT = (req, res, next) => {
   const authHeader = req.headers.authorization || req.headers.Authorization;

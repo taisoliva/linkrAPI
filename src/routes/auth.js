@@ -11,8 +11,8 @@ import {
 
 const authRouter = Router();
 
-router.post("/signin", schemaValidator(loginSchema), handleLogin);
-router.post("/signup", schemaValidator(userSchema), postUser);
-router.post("/logout", handleLogout);
-router.get("/refresh", handleRefreshToken);
+authRouter.post("/signin", schemaValidator(loginSchema), handleLogin);
+authRouter.post("/signup", schemaValidator(userSchema), postUser);
+authRouter.post("/logout", handleLogout);
+authRouter.get("/refresh", handleRefreshToken);
 export default authRouter;
