@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import * as authRepository from "../repositories/authRepository.js";
 import pkg from "jsonwebtoken";
+import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../configs/tokens.js";
 const { sign, verify } = pkg;
 
 export const refreshTokenExpiresIn = 24 * 60 * 60 * 1000; // one day
@@ -16,13 +17,13 @@ export const generateTokens = (user) => {
       UserInfo: {
         name: user.name,
         email: user.email,
-        id: user.id,
+        avatar: user.picture,
       },
     },
-    process.env.ACCESS_TOKEN_SECRET,
+    ACCESS_TOKEN_SECRET,
     { expiresIn: accessTokenExpiresIn }
   );
-  const refreshToken = sign({ id: user.id }, process.env.REFRESH_TOKEN_SECRET, {
+  const refreshToken = sign({ id: user.id }, REFRESH_TOKEN_SECRET, {
     expiresIn: refreshTokenExpiresIn,
   });
   return { accessToken, refreshToken };
@@ -33,7 +34,7 @@ export const saveRefreshToken = async (id, refreshToken) => {
 };
 
 const generateAccessToken = (userInfo) => {
-  return sign({ UserInfo: userInfo }, process.env.ACCESS_TOKEN_SECRET, {
+  return sign({ UserInfo: userInfo }, ACCESS_TOKEN_SECRET, {
     expiresIn: accessTokenExpiresIn,
   });
 };
@@ -44,14 +45,14 @@ export const verifyRefreshToken = async (refreshToken) => {
     return false;
   }
   try {
-    const decoded = verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const decoded = verify(refreshToken, REFRESH_TOKEN_SECRET);
     if (foundUser.id !== decoded.id) {
       return false;
     }
     const accessToken = generateAccessToken({
-      name: foundUser.name,
-      email: foundUser.email,
-      id: foundUser.id,
+      name: user.name,
+      email: user.email,
+      avatar: user.picture,
     });
     return { foundUser, accessToken };
   } catch (error) {
