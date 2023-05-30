@@ -6,7 +6,7 @@ import credentials from "./middlewares/credentials.js";
 import cookieParser from "cookie-parser";
 
 // Import Routes
-import authRoute from "./routes/auth.js";
+import router from "./routes/index.routes.js";
 
 const app = express();
 
@@ -26,14 +26,13 @@ app.use(json());
 // middleware for cookies
 app.use(cookieParser());
 
-const PORT = process.env.PORT || 5000;
+app.use(router);
+
+const PORT = process.env.PORT || 5005;
 
 app.get("/", (req, res) => {
   res.send("Hello, world!");
 });
-
-// Routes
-app.use("/auth", authRoute);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

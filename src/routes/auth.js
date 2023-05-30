@@ -9,10 +9,10 @@ import {
   handleRefreshToken,
 } from "../controllers/authController.js";
 
-const router = Router();
+const authRouter = Router();
 
 router.post("/signin", schemaValidator(loginSchema), handleLogin);
 router.post("/signup", schemaValidator(userSchema), postUser);
 router.post("/logout", handleLogout);
 router.get("/refresh", handleRefreshToken);
-export default router;
+export default authRouter;

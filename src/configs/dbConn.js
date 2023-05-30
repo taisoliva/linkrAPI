@@ -18,4 +18,6 @@ pool.connect((err, client, done) => {
   done();
 });
 
+if (process.env.MODE === "prod") configDatabase.ssl = true;
+
 export default pool;
