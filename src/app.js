@@ -6,6 +6,7 @@ import credentials from "./middlewares/credentials.js";
 import cookieParser from "cookie-parser";
 
 // Import Routes
+import authRoute from "./routes/auth.js";
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.get("/", (req, res) => {
 });
 
 // Routes
+app.use("/auth", authRoute);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
