@@ -2,7 +2,7 @@ import { Router } from "express";
 import { validateIdAsParams } from "../middlewares/validateParams.js";
 import { editPost, deletePost } from "../controllers/posts.controller.js";
 import { schemaValidator } from "../middlewares/schemaValidator.js";
-import editPostSchema from "../schemas/editPost.schema.js";
+import editPostSchema from "../schemas/hash.schema.js";
 import verifyJWT from "../middlewares/verifyJWT.js";
 
 const postsRouter = Router();
