@@ -21,3 +21,12 @@ export async function getUserProfileById(req, res) {
         res.status(500).send(err.message);
     }
 }
+
+export async function logout(req, res) {
+  try {
+    res.clearCookie("jwt");
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+}
