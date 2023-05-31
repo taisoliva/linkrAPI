@@ -23,16 +23,6 @@ export async function getUserProfileById(req, res) {
     }
 }
 
-
-export async function logout(req, res) {
-  try {
-    res.clearCookie("jwt");
-    res.sendStatus(200);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-}
-
 export async function getUserByName(req, res) {
     try {
         const { name } = req.params;
