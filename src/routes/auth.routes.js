@@ -1,13 +1,13 @@
 import { Router } from "express";
 import { schemaValidator } from "../middlewares/schemaValidator.js";
-import userSchema from "../schemas/userSchema.js";
-import loginSchema from "../schemas/loginSchema.js";
+import userSchema from "../schemas/user.Schema.js";
+import loginSchema from "../schemas/login.Schema.js";
 import {
   handleLogin,
   handleLogout,
   postUser,
   handleRefreshToken,
-} from "../controllers/authController.js";
+} from "../controllers/auth.Controller.js";
 
 const authRouter = Router();
 

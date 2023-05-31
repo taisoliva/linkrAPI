@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import * as authRepository from "../repositories/authRepository.js";
+import * as authRepository from "../repositories/auth.Repository.js";
 import pkg from "jsonwebtoken";
 import {
   ACCESS_TOKEN_SECRET,

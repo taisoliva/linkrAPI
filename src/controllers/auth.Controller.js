@@ -7,7 +7,7 @@ import {
   refreshTokenExpiresIn,
   deleteRefreshToken,
   verifyRefreshToken,
-} from "../services/authService.js";
+} from "../services/auth.Service.js";
 
 export const postUser = async (req, res) => {
   try {
@@ -81,7 +81,6 @@ export const handleRefreshToken = async (req, res) => {
   const refreshToken = cookies.jwt;
 
   const result = await verifyRefreshToken(refreshToken);
-  console.log(result)
 
   if (!result)
     return res.status(403).json({ message: "refreshToken not found" });
