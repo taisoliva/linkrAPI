@@ -89,7 +89,7 @@ export const handleRefreshToken = async (req, res) => {
 
   res.json({
     name: foundUser.name,
-    avatar: foundUser.picture,
+    avatar: foundUser.avatar,
     accessToken,
   });
 };
