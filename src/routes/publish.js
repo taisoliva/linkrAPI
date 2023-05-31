@@ -6,7 +6,6 @@ import verifyJWT from "../middlewares/verifyJWT.js";
 
 const publishRouter = Router()
 
-
 publishRouter.post("/post", verifyJWT ,schemaValidator(publishShema),publishPost)
 publishRouter.get("/post", getPost)
 export default publishRouter
