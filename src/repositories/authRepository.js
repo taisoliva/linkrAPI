@@ -4,7 +4,7 @@ export const saveRefreshToken = async (userId, refreshToken) => {
   const client = await pool.connect();
   try {
     const query = {
-      text: `UPDATE token SET refresh_token = $1 WHERE user_id = $2`,
+      text: `UPDATE tokens SET refresh_token = $1 WHERE user_id = $2`,
       values: [refreshToken, userId],
     };
     await client.query(query);
