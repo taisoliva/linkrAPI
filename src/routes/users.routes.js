@@ -8,4 +8,5 @@ const usersRouter = Router();
 usersRouter.get("/getById/:id", verfifyJWT, validateIdAsParams, getUserProfileById);
 usersRouter.get("/getByName/:name", verfifyJWT, getUserByName);
 
+
 export default usersRouter;
