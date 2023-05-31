@@ -7,7 +7,7 @@ import verifyJWT from "../middlewares/verifyJWT.js";
 
 const postsRouter = Router();
 
-postsRouter.put("/posts/edit/:id", verifyJWT, validateIdAsParams, schemaValidator(editPostSchema), editPost);
-postsRouter.delete("/posts/delete/:id", verifyJWT, validateIdAsParams, deletePost);
+postsRouter.put("/edit/:id", verifyJWT, validateIdAsParams, schemaValidator(editPostSchema), editPost);
+postsRouter.delete("/delete/:id", verifyJWT, validateIdAsParams, deletePost);
 
 export default postsRouter;
