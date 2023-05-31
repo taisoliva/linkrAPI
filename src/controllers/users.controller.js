@@ -31,6 +31,7 @@ export async function logout(req, res) {
   } catch (err) {
     res.status(500).send(err.message);
   }
+}
 
 export async function getUserByName(req, res) {
     try {
