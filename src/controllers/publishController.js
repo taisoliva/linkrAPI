@@ -1,12 +1,10 @@
 import { createLinkDB, getPostDB } from "../repositories/publishRepository.js";
-import urlMetadata from "url-metadata";
-import fetch from "node-fetch";
 
 export async function publishPost(req, res) {
-    const { id } = res.locals.user;
+    const { avatar, id} = res.locals.user;
     const {url, description} = req.body
     try {
-        await createLinkDB(url, description, id)
+        await createLinkDB(url, description, avatar, id)
         res.sendStatus(201)
 
     } catch (error) {

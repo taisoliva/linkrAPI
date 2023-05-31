@@ -4,7 +4,7 @@ export const saveRefreshToken = async (userId, refreshToken) => {
   const client = await pool.connect();
   try {
     const query = {
-      text: `UPDATE tokens SET refresh_token = $1 WHERE user_id = $2`,
+      text: `INSERT INTO tokens(refresh_token, user_id) VALUES($1, $2)`,
       values: [refreshToken, userId],
     };
     await client.query(query);
@@ -21,11 +21,12 @@ export const findUserByRefreshToken = async (refreshToken) => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `SELECT * FROM tokens WHERE refresh_token=$1`,
+      `SELECT t.*, u.name, u.email, u.picture AS avatar
+      FROM tokens AS t
+      JOIN users AS u ON t.user_id = u.id
+      WHERE t.refresh_token = $1;`,
       [refreshToken]
     );
-    console.debug(refreshToken);
-    console.debug(result.rows);
     return result.rows[0];
   } catch (err) {
     console.error("Error getting user", err);

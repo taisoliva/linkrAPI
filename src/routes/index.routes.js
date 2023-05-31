@@ -7,10 +7,10 @@ import hashRouter from "./hash.routes.js";
 
 const router = Router();
 
-router.use(usersRouter);
 router.use("/", authRouter);
-router.use("/publish", publishRouter);
-router.use(postsRouter);
+router.use("/users", usersRouter);
+router.use("/publish", publishRouter)
+router.use("/posts", postsRouter);
 router.use(hashRouter);
 
 export default router;

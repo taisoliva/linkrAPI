@@ -50,14 +50,14 @@ export const verifyRefreshToken = async (refreshToken) => {
   }
   try {
     const decoded = verify(refreshToken, REFRESH_TOKEN_SECRET);
-    if (foundUser.id !== decoded.id) {
+    if (foundUser.user_id !== decoded.id) {
       return false;
     }
     const accessToken = generateAccessToken({
-      name: user.name,
-      email: user.email,
-      avatar: user.picture,
-      id: user.id,
+      name: foundUser.name,
+      email: foundUser.email,
+      avatar: foundUser.avatar,
+      id: foundUser.user_id,
     });
     return { foundUser, accessToken };
   } catch (error) {

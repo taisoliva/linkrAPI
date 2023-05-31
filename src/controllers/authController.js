@@ -81,6 +81,7 @@ export const handleRefreshToken = async (req, res) => {
   const refreshToken = cookies.jwt;
 
   const result = await verifyRefreshToken(refreshToken);
+  console.log(result)
 
   if (!result)
     return res.status(403).json({ message: "refreshToken not found" });
@@ -88,7 +89,7 @@ export const handleRefreshToken = async (req, res) => {
 
   res.json({
     name: foundUser.name,
-    avatar: foundUser.picture,
+    avatar: foundUser.avatar,
     accessToken,
   });
 };
