@@ -5,8 +5,8 @@ import postsRouter from "./posts.routes.js";
 
 const router = Router();
 
-router.use(usersRouter);
-router.use("/" ,authRouter);
-router.use(postsRouter);
+router.use("/", authRouter);
+router.use("/users", usersRouter);
+router.use("/posts", postsRouter);
 
 export default router;
