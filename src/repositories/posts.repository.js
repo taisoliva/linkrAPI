@@ -29,17 +29,16 @@ export async function nukePost(id) {
   client.release();
 }
 
-export async function createLinkDB(url, description, avatar, id) {
+export async function createLinkDB(url, description, id) {
   const client = await pool.connect();
   try {
     client.query("BEGIN");
     // Inserir o novo post
-    const insertPostQuery = `INSERT INTO posts (link, description, user_id, picture, likes) VALUES ($1, $2, $3, $4, $5) RETURNING id`;
+    const insertPostQuery = `INSERT INTO posts (link, description, user_id, likes) VALUES ($1, $2, $3, $4) RETURNING id`;
     const postResult = await client.query(insertPostQuery, [
       url,
       description,
       id,
-      avatar,
       0,
     ]);
     const postId = parseInt(postResult.rows[0].id);
