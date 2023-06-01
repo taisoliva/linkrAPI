@@ -8,7 +8,7 @@ import {
 const { sign, verify } = pkg;
 
 export const refreshTokenExpiresIn = 24 * 60 * 60 * 1000; // one day
-export const accessTokenExpiresIn = 10 * 10000; // 10 seconds
+export const accessTokenExpiresIn = 24 * 60 * 60 * 1000; //10 * 10000; // 10 seconds
 
 export const comparePassword = async (password, hashedPassword) => {
   return bcrypt.compare(password, hashedPassword);
