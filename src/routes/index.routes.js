@@ -9,6 +9,6 @@ const router = Router();
 router.use("/", authRouter);
 router.use("/users", usersRouter);
 router.use("/posts", postsRouter);
-router.use(hashRouter);
+// router.use(hashRouter);
 
 export default router;
