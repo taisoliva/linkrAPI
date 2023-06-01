@@ -44,6 +44,7 @@ export const handleLogin = async (req, res) => {
         maxAge: refreshTokenExpiresIn,
       });
       return res.json({
+        id:foundUser.id,
         name: foundUser.name,
         avatar: foundUser.picture,
         accessToken,
@@ -81,12 +82,14 @@ export const handleRefreshToken = async (req, res) => {
   const refreshToken = cookies.jwt;
 
   const result = await verifyRefreshToken(refreshToken);
+  console.log(result)
 
   if (!result)
     return res.status(403).json({ message: "refreshToken not found" });
   const { foundUser, accessToken } = result;
 
   res.json({
+    id:foundUser.user_id,
     name: foundUser.name,
     avatar: foundUser.avatar,
     accessToken,
