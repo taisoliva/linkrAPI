@@ -4,10 +4,13 @@ import {
     nukePost,
     createLinkDB,
     getPostDB,
-    disLikedPostDB, 
-    getPostLikes, 
+    disLikedPostDB,
+    getPostLikes,
     isLiked,
-    likedPostDB
+    likedPostDB,
+    updateLikesDB,
+    verifyLikesDB,
+    whoLikedDB
 } from "../repositories/posts.repository.js";
 
 export async function editPost(req, res) {
@@ -74,9 +77,11 @@ export async function likedPost(req, res) {
         const user_id = res.locals.user.id;
 
         const post = await getPostLikes(id)
+        console.log(post.rows)
         const amountLikes = (post.rows[0].likes) + 1
 
         const checked = await isLiked(id, user_id)
+        console.log(checked)
 
         if (!checked) {
             await likedPostDB(id, user_id)
@@ -107,6 +112,31 @@ export async function disLikedPost(req, res) {
         await updateLikesDB(id, amountLikes)
 
         res.sendStatus(200)
+
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
+export async function verifyLikes(req, res) {
+    try {
+        const { id } = req.params
+        const user_id = res.locals.user.id;
+        const checked = await verifyLikesDB(id, user_id)
+
+        res.status(200).send(checked.rows)
+
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
+export async function whoLiked(req,res){
+
+    const {id} = req.params
+    try {
+        const checked = await whoLikedDB(id)
+        res.status(200).send(checked.rows)
 
     } catch (err) {
         res.status(500).send(err.message)
