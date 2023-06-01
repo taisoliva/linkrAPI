@@ -28,7 +28,7 @@ export async function getUserByName(req, res) {
         const { name } = req.params;
 
         const data = await findUserByName(name);
-        if (data.rowCount <= 0) return res.send(422);
+        if (data.rowCount <= 0) return res.sendStatus(422);
 
         res.send(data.rows);
 
