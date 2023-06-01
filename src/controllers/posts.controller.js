@@ -45,7 +45,7 @@ export async function publishPost(req, res) {
   const { avatar, id } = res.locals.user;
   const { url, description } = req.body;
   try {
-    await createLinkDB(url, description, avatar, id);
+    await createLinkDB(url, description, id);
     res.sendStatus(201);
   } catch (error) {
     console.error(error);
