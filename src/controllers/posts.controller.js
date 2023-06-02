@@ -77,11 +77,9 @@ export async function likedPost(req, res) {
         const user_id = res.locals.user.id;
 
         const post = await getPostLikes(id)
-        console.log(post.rows)
         const amountLikes = (post.rows[0].likes) + 1
 
-        const checked = await isLiked(id, user_id)
-        console.log(checked)
+        const checked = await isLiked(id, user_id);
 
         if (!checked) {
             await likedPostDB(id, user_id)
