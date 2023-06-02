@@ -104,7 +104,7 @@ export const handleRefreshToken = async (req, res) => {
 
 export const handleRefreshTokenWithoutJWT = async (req, res) => {
   const authHeader = req.headers.authorization || req.headers.Authorization;
-  
+
   if (!authHeader?.startsWith("Bearer ")) return res.sendStatus(401);
   const token = authHeader.split(" ")[1];
 
@@ -125,11 +125,18 @@ export const handleRefreshTokenWithoutJWT = async (req, res) => {
 
 export const postCheckCookies = async (req, res) => {
   const { testCookie } = req.body;
-  res.cookie("testCookie", testCookie).send();
+  res
+    .cookie("testCookie", testCookie, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: refreshTokenExpiresIn,
+    })
+    .send();
 };
 
 export const getCheckCookies = async (req, res) => {
   const cookiesAccepted = req.cookies.testCookie ? true : false;
-  console.log(`Sending cookiesAccepted: ${cookiesAccepted}`)
+  console.log(`Sending cookiesAccepted: ${cookiesAccepted}`);
   res.json({ cookiesAccepted });
 };
