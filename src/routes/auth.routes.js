@@ -7,6 +7,7 @@ import {
   handleLogout,
   postUser,
   handleRefreshToken,
+  handleRefreshTokenWithoutJWT,
 } from "../controllers/auth.Controller.js";
 
 const authRouter = Router();
@@ -15,4 +16,5 @@ authRouter.post("/signin", schemaValidator(loginSchema), handleLogin);
 authRouter.post("/signup", schemaValidator(userSchema), postUser);
 authRouter.post("/logout", handleLogout);
 authRouter.get("/refresh", handleRefreshToken);
+authRouter.get("/refreshnojwt", handleRefreshTokenWithoutJWT);
 export default authRouter;

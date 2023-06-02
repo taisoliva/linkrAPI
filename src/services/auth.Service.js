@@ -70,7 +70,7 @@ export const deleteRefreshToken = async (refreshToken) => {
   if (!foundUser) {
     return false;
   }
-  const result = await authRepository.deleteRefreshToken(foundUser.id);
+  const result = await authRepository.deleteRefreshToken(refreshToken);
   return result;
 };
 
