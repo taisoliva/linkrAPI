@@ -88,27 +88,6 @@ export const handleRefreshToken = async (req, res) => {
   const refreshToken = cookies.jwt;
 
   const result = await verifyRefreshToken(refreshToken);
-  console.log(result);
-
-  if (!result)
-    return res.status(403).json({ message: "refreshToken not found" });
-  const { foundUser, accessToken } = result;
-
-  res.json({
-    id: foundUser.user_id,
-    name: foundUser.name,
-    avatar: foundUser.avatar,
-    accessToken,
-  });
-};
-
-export const handleRefreshTokenWithoutJWT = async (req, res) => {
-  const authHeader = req.headers.authorization || req.headers.Authorization;
-  if (!authHeader?.startsWith("Bearer ")) return res.sendStatus(401);
-  const token = authHeader.split(" ")[1];
-
-  const result = await verifyRefreshToken(token);
-  console.log(result);
 
   if (!result)
     return res.status(403).json({ message: "refreshToken not found" });
