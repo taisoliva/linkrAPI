@@ -36,12 +36,13 @@ export const findUserByRefreshToken = async (refreshToken) => {
   }
 };
 
-export const deleteRefreshToken = async (id) => {
+export const deleteRefreshToken = async (refreshToken) => {
   const client = await pool.connect();
+  console.log("aqui" + refreshToken)
   try {
     const query = {
-      text: `UPDATE tokens SET "refresh_token" = $1 WHERE id = $2`,
-      values: ["", id],
+      text: `DELETE FROM tokens WHERE "refresh_token" = $1`,
+      values: [refreshToken],
     };
     await client.query(query);
     return true;
