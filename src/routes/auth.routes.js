@@ -8,6 +8,8 @@ import {
   postUser,
   handleRefreshToken,
   handleRefreshTokenWithoutJWT,
+  postCheckCookies,
+  getCheckCookies,
 } from "../controllers/auth.Controller.js";
 
 const authRouter = Router();
@@ -17,4 +19,6 @@ authRouter.post("/signup", schemaValidator(userSchema), postUser);
 authRouter.post("/logout", handleLogout);
 authRouter.get("/refresh", handleRefreshToken);
 authRouter.get("/refreshnojwt", handleRefreshTokenWithoutJWT);
+authRouter.post("/check-cookies", postCheckCookies);
+authRouter.get("/check-cookies", getCheckCookies);
 export default authRouter;

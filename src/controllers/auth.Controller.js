@@ -122,3 +122,13 @@ export const handleRefreshTokenWithoutJWT = async (req, res) => {
   });
 };
 
+export const postCheckCookies = async (req, res) => {
+  const { testCookie } = req.body;
+  res.cookie("testCookie", testCookie).send();
+};
+
+export const getCheckCookies = async (req, res) => {
+  const cookiesAccepted = req.cookies.testCookie ? true : false;
+  console.log(`Sending cookiesAccepted: ${cookiesAccepted}`)
+  res.json({ cookiesAccepted });
+};
