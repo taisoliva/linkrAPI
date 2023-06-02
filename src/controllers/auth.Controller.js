@@ -37,18 +37,24 @@ export const handleLogin = async (req, res) => {
       if (req?.cookies?.jwt) {
         res.clearCookie("jwt", { httpOnly: true });
       }
-      res.cookie("jwt", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "None",
-        maxAge: refreshTokenExpiresIn,
-      });
-      return res.json({
-        id:foundUser.id,
+
+      const response = {
+        id: foundUser.id,
         name: foundUser.name,
         avatar: foundUser.picture,
         accessToken,
-      });
+      };
+
+      if (req.body.cookiesAccepted) {
+        res.cookie("jwt", refreshToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "None",
+          maxAge: refreshTokenExpiresIn,
+        });
+        return res.json(response);
+      }
+      return res.json({ ...response, refreshToken });
     } else {
       return res.sendStatus(401); //unauthorized
     }
@@ -88,9 +94,20 @@ export const handleRefreshToken = async (req, res) => {
   const { foundUser, accessToken } = result;
 
   res.json({
-    id:foundUser.user_id,
+    id: foundUser.user_id,
     name: foundUser.name,
     avatar: foundUser.avatar,
     accessToken,
   });
+};
+
+export const postCheckCookies = async (req, res) => {
+  const { testCookie } = req.body;
+  res.cookie("testCookie", testCookie).send();
+};
+
+export const getCheckCookies = async (req, res) => {
+  const cookiesAccepted = req.cookies.testCookie ? true : false;
+  console.log(`Sending cookiesAccepted: ${cookiesAccepted}`)
+  res.json({ cookiesAccepted });
 };
