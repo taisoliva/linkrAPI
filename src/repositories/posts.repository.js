@@ -42,7 +42,6 @@ export async function createLinkDB(url, description, id) {
       0,
     ]);
     const postId = parseInt(postResult.rows[0].id);
-    console.log(postId);
 
     // Inserir as hashtags
     const insertHashtagsQuery = `INSERT INTO hashtags (post_id, hash_name)
@@ -64,7 +63,8 @@ export async function createLinkDB(url, description, id) {
 export async function getPostDB() {
   const client = await pool.connect();
   try {
-    return client.query(` SELECT posts.*, users.name, users.picture FROM posts
+    return client.query(` SELECT posts.*, users.name, users.picture, users.id 
+                                AS "userPostId" FROM posts
                                 JOIN users ON users.id = posts.user_Id  
                                 ORDER BY id DESC 
                                 LIMIT 20`);
