@@ -9,6 +9,7 @@ import {
   disLikedPost,
   verifyLikes,
   whoLiked,
+  getPostsV2,
 } from "../controllers/posts.controller.js";
 import { schemaValidator } from "../middlewares/schemaValidator.js";
 import editPostSchema from "../schemas/hash.schema.js";
@@ -25,11 +26,18 @@ postsRouter.put(
   editPost
 );
 postsRouter.delete("/delete/:id", verifyJWT, validateIdAsParams, deletePost);
+
 postsRouter.post("/likes/:id", verifyJWT, validateIdAsParams, likedPost);
 postsRouter.post("/disliked/:id", verifyJWT, validateIdAsParams, disLikedPost);
-postsRouter.get("/isliked", verifyJWT, verifyLikes);
-postsRouter.get("/liked/:id", verifyJWT, whoLiked);
+
+// ********************************************************** //
+/* */ postsRouter.get("/isliked", verifyJWT, verifyLikes); /* */
+/* */ postsRouter.get("/liked/:id", verifyJWT, whoLiked);  /* */
+/* */ postsRouter.get("/", getPost);                       /* */
+// ********************************************************** //
+/* */ postsRouter.get("/v2", verifyJWT, getPostsV2);       /* */
+// ********************************************************** //
+
 postsRouter.post("/", verifyJWT, schemaValidator(publishShema), publishPost);
-postsRouter.get("/", getPost);
 
 export default postsRouter;
