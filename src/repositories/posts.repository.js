@@ -173,16 +173,69 @@ export async function whoLikedDB(id) {
   try {
     const checked = await client.query(
       `SELECT likes.*, users.id AS "user_id", 
-                                                  users.name AS "user_name" 
-                                                  FROM likes 
-                                                  JOIN users ON users.id = likes.user_id
-                                                  WHERE likes.post_id=$1
-                                                  LIMIT 20`,
+        users.name AS "user_name" 
+        FROM likes 
+        JOIN users ON users.id = likes.user_id
+        WHERE likes.post_id=$1
+        LIMIT 20`,
       [id]
     );
     return checked;
   } catch (err) {
     console.error("Error updating refresh token", err);
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+export async function getPostsWithLikesAndUsers(user_id) {
+  const client = await pool.connect();
+  try {
+    const query = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture", 
+        users.id AS "user_id", likes.id AS "like_id", likes.user_id AS "like_user_id"
+      FROM posts
+      JOIN users ON users.id = posts.user_id
+      LEFT JOIN likes ON likes.post_id = posts.id
+      ORDER BY posts.id DESC
+      LIMIT 20;
+    `;
+
+    const result = await client.query(query);
+    const posts = result.rows;
+    const postsWithLikes = [];
+
+    // Agrupar os likes pelo post_id
+    const likesMap = {};
+    result.rows.forEach((row) => {
+      if (row.like_id) {
+        if (!likesMap[row.id]) {
+          likesMap[row.id] = [];
+        }
+        likesMap[row.id].push({
+          id: row.like_id,
+          user_id: row.like_user_id,
+          user_name: row.user_name,
+          user_picture: row.user_picture,
+        });
+      }
+    });
+
+    // Verificar se o usuario curtiu cada post retornado
+    posts.forEach((post) => {
+      const postLikes = likesMap[post.id] || [];
+      const userLiked = postLikes.some((like) => like.user_id === user_id);
+      const formattedPost = {
+        ...post,
+        likes: postLikes,
+        userLiked: userLiked,
+      };
+      postsWithLikes.push(formattedPost);
+    });
+
+    return postsWithLikes;
+  } catch (err) {
+    console.error("Error retrieving posts with likes and users", err);
     throw err;
   } finally {
     client.release();

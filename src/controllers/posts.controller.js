@@ -11,6 +11,7 @@ import {
   updateLikesDB,
   verifyLikesDB,
   whoLikedDB,
+  getPostsWithLikesAndUsers,
 } from "../repositories/posts.repository.js";
 
 export async function editPost(req, res) {
@@ -134,3 +135,17 @@ export async function whoLiked(req, res) {
     res.status(500).send(err.message);
   }
 }
+
+export const getPostsV2 = async (req, res) => {
+  const user_id = res.locals.user.id;
+
+  try {
+    // getPostDB()
+    // verifyLikesDB(id, user_id)
+    // whoLikedDB(id)
+    const response = await getPostsWithLikesAndUsers(user_id);
+    res.status(200).json(response);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+};
