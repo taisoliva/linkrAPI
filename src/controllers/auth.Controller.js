@@ -88,7 +88,6 @@ export const handleRefreshToken = async (req, res) => {
   const refreshToken = cookies.jwt;
 
   const result = await verifyRefreshToken(refreshToken);
-  console.log(result);
 
   if (!result)
     return res.status(403).json({ message: "refreshToken not found" });
@@ -109,7 +108,6 @@ export const handleRefreshTokenWithoutJWT = async (req, res) => {
   const token = authHeader.split(" ")[1];
 
   const result = await verifyRefreshToken(token);
-  console.log(result);
 
   if (!result)
     return res.status(403).json({ message: "refreshToken not found" });
