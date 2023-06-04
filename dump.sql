@@ -20,6 +20,8 @@ SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
+CREATE ROLE linkrdbuser WITH LOGIN PASSWORD 'senha_super_secreta_linkrdbuser' CREATEDB;
+
 --
 -- Name: hashtags; Type: TABLE; Schema: public; Owner: -
 --
