@@ -17,7 +17,7 @@ export const postUser = async (req, res) => {
         .status(409)
         .json({ message: "User already registered with this Email" });
     }
-    await createUser(req.body);
+    await createUser({... req.body, email: req.body.email.toLowerCase()});
     res.status(201).json({ message: "User created!" });
   } catch (error) {
     console.error(error);
