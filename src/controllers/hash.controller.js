@@ -1,10 +1,11 @@
-import hash from "../repositories/hash.repository.js";
+import hash from "../repositories/hashtags.repository.js";
 export async function getHashRank(req, res) {
-  console.log(`<<<<<`);
   try {
-    const hashRank = hash.getHashRank();
+    const hashRank = await hash.getHashRank();
     if (!hashRank) return res.status(404).send("Hash not found");
-    res.send(hashRank);
+
+    console.log(hashRank);
+    return res.send(hashRank);
   } catch (err) {
     res.status(500).send(err.message);
   }
