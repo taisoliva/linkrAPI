@@ -59,34 +59,6 @@ export async function createLinkDB(url, description, id) {
   }
 }
 
-export async function getPostDB() {
-  const client = await pool.connect();
-  try {
-    return client.query(` SELECT posts.*, users.name, users.picture, users.id 
-                                AS "userPostId" FROM posts
-                                JOIN users ON users.id = posts.user_Id  
-                                ORDER BY id DESC 
-                                LIMIT 20`);
-  } catch (err) {
-    console.error("Error updating refresh token", err);
-    throw err;
-  } finally {
-    client.release();
-  }
-}
-
-export async function getPostLikes(id) {
-  const client = await pool.connect();
-  try {
-    return client.query(`SELECT * FROM posts WHERE id=$1`, [id]);
-  } catch (err) {
-    console.error("Error updating refresh token", err);
-    throw err;
-  } finally {
-    client.release();
-  }
-}
-
 export async function likedPostDB(id, user_id) {
   const client = await pool.connect();
   try {
@@ -110,76 +82,6 @@ export async function disLikedPostDB(id, user_id) {
       user_id,
       id,
     ]);
-  } catch (err) {
-    console.error("Error updating refresh token", err);
-    throw err;
-  } finally {
-    client.release();
-  }
-}
-
-export async function updateLikesDB(id, amountLikes) {
-  const client = await pool.connect();
-  try {
-    return client.query(`UPDATE posts SET likes=$1 WHERE id=$2`, [
-      amountLikes,
-      id,
-    ]);
-  } catch (err) {
-    console.error("Error updating refresh token", err);
-    throw err;
-  } finally {
-    client.release();
-  }
-}
-
-export async function isLiked(id, user_id) {
-  const client = await pool.connect();
-  try {
-    const checked = await client.query(
-      `SELECT * FROM likes WHERE user_id=$1 AND post_id=$2`,
-      [user_id, id]
-    );
-    if (checked.rows.length !== 0) {
-      return true;
-    }
-    return false;
-  } catch (err) {
-    console.error("Error updating refresh token", err);
-    throw err;
-  } finally {
-    client.release();
-  }
-}
-
-export async function verifyLikesDB(id, user_id) {
-  const client = await pool.connect();
-  try {
-    const checked = await client.query(`SELECT * FROM likes WHERE user_id=$1`, [
-      user_id,
-    ]);
-    return checked;
-  } catch (err) {
-    console.error("Error updating refresh token", err);
-    throw err;
-  } finally {
-    client.release();
-  }
-}
-
-export async function whoLikedDB(id) {
-  const client = await pool.connect();
-  try {
-    const checked = await client.query(
-      `SELECT likes.*, users.id AS "user_id", 
-        users.name AS "user_name" 
-        FROM likes 
-        JOIN users ON users.id = likes.user_id
-        WHERE likes.post_id=$1
-        LIMIT 20`,
-      [id]
-    );
-    return checked;
   } catch (err) {
     console.error("Error updating refresh token", err);
     throw err;
