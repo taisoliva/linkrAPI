@@ -91,10 +91,8 @@ export async function disLikedPostDB(id, user_id) {
 }
 
 export async function getPostsWithLikesAndUsers(user_id) {
-  const client = await pool.connect();
-  try {
-    
-    const query = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture",
+  const query = `
+    SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture",
     users.id AS "user_id", likes.id AS "like_id", likes.user_id AS "like_user_id",
     like_users.name AS "like_user_name"
     FROM posts
@@ -102,16 +100,16 @@ export async function getPostsWithLikesAndUsers(user_id) {
     LEFT JOIN likes ON likes.post_id = posts.id
     LEFT JOIN users AS like_users ON like_users.id = likes.user_id
     ORDER BY posts.id DESC
-    LIMIT 20;`
+    LIMIT 20;`;
+  const client = await pool.connect();
+  try {
+    const { rows: posts } = await client.query(query);
 
-    const result = await client.query(query);
-
-    const posts = result.rows;
     const postsWithLikes = [];
 
     // Agrupar os likes pelo post_id
     const likesMap = {};
-    result.rows.forEach((row) => {
+    posts.forEach((row) => {
       if (row.like_id) {
         if (!likesMap[row.id]) {
           likesMap[row.id] = [];
@@ -119,33 +117,34 @@ export async function getPostsWithLikesAndUsers(user_id) {
         likesMap[row.id].push({
           id: row.like_id,
           user_id: row.like_user_id,
-          user_name: row.like_user_name
+          user_name: row.like_user_name,
         });
-      } 
+      }
     });
 
     // Verificar se o usuario curtiu cada post retornado
-       posts.forEach((post) => {
-       const postLikes = likesMap[post.id] || [];
-       const userLiked = postLikes.some((like) => like.user_id === user_id);
-       const formattedPost = {
-         ...post,
-         likes: postLikes,
-         userLiked: userLiked,
-       };
+    posts.forEach((post) => {
+      const postLikes = likesMap[post.id] || [];
+      const userLiked = postLikes.some((like) => like.user_id === user_id);
+      const formattedPost = {
+        ...post,
+        likes: postLikes,
+        userLiked: userLiked,
+      };
 
-       // Deletar informações que não preciso usar
-       delete formattedPost.like_id;
-       delete formattedPost.like_user_id;
-       delete formattedPost.like_user_name;
+      // Deletar informações que não preciso usar
+      delete formattedPost.like_id;
+      delete formattedPost.like_user_id;
+      delete formattedPost.like_user_name;
 
-       
-       postsWithLikes.push(formattedPost);
-     }); 
-     
-     let uniqueArray = postsWithLikes.filter((item, index, arr) => arr.findIndex(el => el.id === item.id) === index);
-   
-     return uniqueArray;
+      postsWithLikes.push(formattedPost);
+    });
+
+    let uniqueArray = postsWithLikes.filter(
+      (item, index, arr) => arr.findIndex((el) => el.id === item.id) === index
+    );
+
+    return uniqueArray;
   } catch (err) {
     console.error("Error retrieving posts with likes and users", err);
     throw err;
