@@ -104,11 +104,16 @@ export async function createLinkDB(url, description, id) {
     const postId = parseInt(postResult.rows[0].id);
 
     // Inserir as hashtags
-    const insertHashtagsQuery = `INSERT INTO hashtags (post_id, hash_name)
+    const insertHashtagsQuery2 = `INSERT INTO hashtags (post_id, hash_name)
           SELECT $1, unnest(regexp_matches($2, E'#[a-zA-Z0-9_]+', 'g'))
           FROM (VALUES (1)) AS p(post_id)
           WHERE strpos($2, '#') <> 0
     `;
+    const insertHashtagsQuery = `INSERT INTO hashtags (post_id, hash_name)
+    SELECT $1, substring(unnest(regexp_matches($2, E'#[a-zA-Z0-9_]+', 'g')), 2)
+    FROM (VALUES (1)) AS p(post_id)
+    WHERE strpos($2, '#') <> 0;
+  `;
 
     await client.query(insertHashtagsQuery, [postId, description]);
     await client.query("COMMIT");
