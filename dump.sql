@@ -155,7 +155,8 @@ CREATE TABLE public.users (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     password character varying(255) NOT NULL,
-    email character varying(255) NOT NULL
+    email character varying(255) NOT NULL,
+    picture character varying(255) NOT NULL
 );
 
 
