@@ -12,12 +12,13 @@ export async function getUserProfileById(req, res) {
     const user = await findProfileByUserId(id);
     if (user.rowCount <= 0) return res.sendStatus(422);
     const posts = await findPostsByUserId(id);
+   
 
     const data = {
       name: user.rows[0].name,
       picture: user.rows[0].picture,
-      posts: posts.rows,
-    };
+      posts: posts,
+    }; 
 
     res.send(data);
   } catch (err) {

@@ -18,7 +18,7 @@ export async function editPost(req, res) {
     if (post.rowCount <= 0 || post.rows[0]?.user_id != user_id)
       return res.sendStatus(401);
 
-    await modifyPost(description, id);
+    await modifyPost(description, id); 
 
     res.send();
   } catch (err) {
