@@ -164,13 +164,12 @@ export async function getPostsWithLikesAndUsers(user_id) {
       ORDER BY posts.id DESC;
       `;
     const result = await client.query(query);
-
-    const posts = result.rows;
+    
     const postsWithLikes = [];
 
     // Agrupar os likes pelo post_id
     const likesMap = {};
-    result.rows.forEach((row) => {
+    posts.forEach((row) => {
       if (row.like_id) {
         if (!likesMap[row.id]) {
           likesMap[row.id] = [];
@@ -204,9 +203,9 @@ export async function getPostsWithLikesAndUsers(user_id) {
     let uniqueArray = postsWithLikes.filter(
       (item, index, arr) => arr.findIndex((el) => el.id === item.id) === index
     );
+
     const limitedPosts = uniqueArray.slice(0, 20); // Limitar o número de posts ao valor desejado
     return limitedPosts;
-    
   } catch (err) {
     console.error("Error retrieving posts with likes and users", err);
     throw err;
