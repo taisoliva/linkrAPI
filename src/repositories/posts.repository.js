@@ -165,6 +165,7 @@ export async function getPostsWithLikesAndUsers(user_id) {
       `;
     const result = await client.query(query);
     
+    const posts = result.rows;
     const postsWithLikes = [];
 
     // Agrupar os likes pelo post_id
