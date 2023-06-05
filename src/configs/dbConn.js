@@ -5,9 +5,14 @@ config();
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const { Pool } = pg;
-const pool = new Pool({
-  connectionString: DATABASE_URL,
-});
+
+const configDatabase = {
+  connectionString: DATABASE_URL
+};
+
+if (process.env.MODE === "prod") configDatabase.ssl = true;
+
+const pool = new Pool(configDatabase);
 
 pool.connect((err, client, done) => {
   if (err) {
@@ -17,7 +22,5 @@ pool.connect((err, client, done) => {
   console.log("Connected to PostgreSQL database");
   done();
 });
-
-if (process.env.MODE === "prod") configDatabase.ssl = true;
 
 export default pool;
