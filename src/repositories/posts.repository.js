@@ -38,7 +38,7 @@ export async function createLinkDB(url, description, id) {
     const postResult = await client.query(insertPostQuery, [
       url,
       description,
-      id
+      id,
     ]);
     const postId = parseInt(postResult.rows[0].id);
 
@@ -93,17 +93,15 @@ export async function disLikedPostDB(id, user_id) {
 export async function getPostsWithLikesAndUsers(user_id) {
   const client = await pool.connect();
   try {
-    
     const query = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture",
-    users.id AS "user_id", likes.id AS "like_id", likes.user_id AS "like_user_id",
-    like_users.name AS "like_user_name"
-    FROM posts
-    JOIN users ON users.id = posts.user_id
-    LEFT JOIN likes ON likes.post_id = posts.id
-    LEFT JOIN users AS like_users ON like_users.id = likes.user_id
-    ORDER BY posts.id DESC
-    LIMIT 20;`
-
+        users.id AS "user_id", likes.id AS "like_id", likes.user_id AS "like_user_id",
+        like_users.name AS "like_user_name"
+      FROM posts
+      JOIN users ON users.id = posts.user_id
+      LEFT JOIN likes ON likes.post_id = posts.id
+      LEFT JOIN users AS like_users ON like_users.id = likes.user_id
+      ORDER BY posts.id DESC;
+      `;
     const result = await client.query(query);
 
     const posts = result.rows;
@@ -119,33 +117,35 @@ export async function getPostsWithLikesAndUsers(user_id) {
         likesMap[row.id].push({
           id: row.like_id,
           user_id: row.like_user_id,
-          user_name: row.like_user_name
+          user_name: row.like_user_name,
         });
-      } 
+      }
     });
 
     // Verificar se o usuario curtiu cada post retornado
-       posts.forEach((post) => {
-       const postLikes = likesMap[post.id] || [];
-       const userLiked = postLikes.some((like) => like.user_id === user_id);
-       const formattedPost = {
-         ...post,
-         likes: postLikes,
-         userLiked: userLiked,
-       };
+    posts.forEach((post) => {
+      const postLikes = likesMap[post.id] || [];
+      const userLiked = postLikes.some((like) => like.user_id === user_id);
+      const formattedPost = {
+        ...post,
+        likes: postLikes,
+        userLiked: userLiked,
+      };
 
-       // Deletar informações que não preciso usar
-       delete formattedPost.like_id;
-       delete formattedPost.like_user_id;
-       delete formattedPost.like_user_name;
+      // Deletar informações que não preciso usar
+      delete formattedPost.like_id;
+      delete formattedPost.like_user_id;
+      delete formattedPost.like_user_name;
 
-       
-       postsWithLikes.push(formattedPost);
-     }); 
-     
-     let uniqueArray = postsWithLikes.filter((item, index, arr) => arr.findIndex(el => el.id === item.id) === index);
-   
-     return uniqueArray;
+      postsWithLikes.push(formattedPost);
+    });
+
+    let uniqueArray = postsWithLikes.filter(
+      (item, index, arr) => arr.findIndex((el) => el.id === item.id) === index
+    );
+    const limitedPosts = uniqueArray.slice(0, 20); // Limitar o número de posts ao valor desejado
+    return limitedPosts;
+    
   } catch (err) {
     console.error("Error retrieving posts with likes and users", err);
     throw err;
