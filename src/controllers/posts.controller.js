@@ -5,7 +5,8 @@ import {
   createLinkDB,
   disLikedPostDB,
   likedPostDB,
-  getPostsWithLikesAndUsers,
+  postShareDB,
+  getPostsDB,
 } from "../repositories/posts.repository.js";
 
 export async function editPost(req, res) {
@@ -84,9 +85,23 @@ export const getPost = async (req, res) => {
   const user_id = res.locals.user.id;
 
   try {
-    const response = await getPostsWithLikesAndUsers(user_id);
+    const response = await getPostsDB(user_id);
     res.status(200).json(response);
   } catch (err) {
     res.status(500).send(err.message);
   }
 };
+
+export const postShare = async (req, res) => {
+
+  const {id} = req.params
+  const user_id = res.locals.user.id
+
+  try{
+    const response = await postShareDB(id, user_id)
+    res.sendStatus(200)
+  }catch(err){
+    res.status(500).send(err.message)
+  }
+};
+
