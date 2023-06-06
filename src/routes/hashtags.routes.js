@@ -5,6 +5,6 @@ import { validateStringParam } from "../middlewares/validateStringParam.js";
 const postsRouter = Router();
 
 postsRouter.get("/", verifyJWT, getHashRank);
-postsRouter.get("/:hash", verifyJWT, validateStringParam, getHashDetail);
+postsRouter.get("/:hash", verifyJWT, getHashDetail);
 
 export default postsRouter;
