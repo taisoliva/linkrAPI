@@ -10,3 +10,4 @@ commentsRoutes.get("/:post_id", getCommentsWithPostId);
 commentsRoutes.post("/", schemaValidator(commentSchema), postComment);
 
 export default commentsRoutes;
+
