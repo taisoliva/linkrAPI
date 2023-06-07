@@ -92,13 +92,28 @@ export const getPost = async (req, res) => {
   }
 };
 
+export async function publishRepost(req, res) {
+
+  const {id, url, description } = req.body;
+  try {
+    const new_id = await createLinkDB(url, description, id);
+    res.status(201).send({new_id})
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 export const postShare = async (req, res) => {
 
   const {id} = req.params
   const user_id = res.locals.user.id
+  const {repost} = req.body
+
+  console.log(id, user_id, repost)
 
   try{
-    const response = await postShareDB(id, user_id)
+    const response = await postShareDB(id, user_id,repost)
     res.sendStatus(200)
   }catch(err){
     res.status(500).send(err.message)

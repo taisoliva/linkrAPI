@@ -8,6 +8,7 @@ import {
   disLikedPost,
   getPost,
   postShare,
+  publishRepost,
 } from "../controllers/posts.controller.js";
 import { schemaValidator } from "../middlewares/schemaValidator.js";
 import editPostSchema from "../schemas/hash.schema.js";
@@ -26,6 +27,7 @@ postsRouter.put(
 postsRouter.delete("/delete/:id", verifyJWT, validateIdAsParams, deletePost);
 
 postsRouter.post("/", verifyJWT, schemaValidator(publishShema), publishPost);
+postsRouter.post("/repost", verifyJWT, publishRepost);
 postsRouter.post("/likes/:id", verifyJWT, validateIdAsParams, likedPost);
 postsRouter.post("/disliked/:id", verifyJWT, validateIdAsParams, disLikedPost);
 
