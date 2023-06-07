@@ -156,8 +156,10 @@ export async function disLikedPostDB(id, user_id) {
   }
 }
 
-export async function getPostsDB(user_id) {
+export async function getPostsDB(user_id, offset) {
+
   const client = await pool.connect();
+
   try {
     const query = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture",
           users.id AS "user_id", likes.id AS "like_id", likes.user_id AS "like_user_id",
@@ -168,9 +170,12 @@ export async function getPostsDB(user_id) {
           LEFT JOIN likes ON likes.post_id = posts.id
           LEFT JOIN users AS like_users ON like_users.id = likes.user_id
           LEFT JOIN shares ON shares.post_id = posts.id
-          LEFT JOIN users AS share_users ON share_users.id =  shares.user_id
-          ORDER BY posts.id DESC;`;
-    const result = await client.query(query);
+          LEFT JOIN users AS share_users ON share_users.id = shares.user_id
+          ORDER BY posts.id DESC
+          LIMIT 10 * $1
+          OFFSET $2;`;
+
+    const result = await client.query(query, [Number(offset[0]), Number(offset[1])]);
 
     const posts = result.rows;
     const postsWithLikes = [];
@@ -233,8 +238,7 @@ export async function getPostsDB(user_id) {
       (item, index, arr) => arr.findIndex((el) => el.id === item.id) === index
     );
 
-    const limitedPosts = uniqueArray.slice(0, 20); // Limitar o número de posts ao valor desejado
-    return limitedPosts;
+    return uniqueArray;
 
   } catch (err) {
     console.error("Error retrieving posts with likes and users", err);
@@ -263,3 +267,12 @@ export async function postShareDB(id, user_id) {
 
 }
 
+export async function getNewPostsQtnd(last) {
+  const client = await pool.connect();
+
+  const result = await client.query(`SELECT COUNT(*) FROM posts WHERE id > $1`, [last]);
+
+  client.release();
+
+  return result;
+}

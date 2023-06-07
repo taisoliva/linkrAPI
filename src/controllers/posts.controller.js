@@ -7,6 +7,7 @@ import {
   likedPostDB,
   postShareDB,
   getPostsDB,
+  getNewPostsQtnd
 } from "../repositories/posts.repository.js";
 
 export async function editPost(req, res) {
@@ -19,7 +20,7 @@ export async function editPost(req, res) {
     if (post.rowCount <= 0 || post.rows[0]?.user_id != user_id)
       return res.sendStatus(401);
 
-    await modifyPost(description, id); 
+    await modifyPost(description, id);
 
     res.send();
   } catch (err) {
@@ -84,8 +85,11 @@ export async function disLikedPost(req, res) {
 export const getPost = async (req, res) => {
   const user_id = res.locals.user.id;
 
+  let { offset } = req.params;
+  offset = offset.split(" ");
+
   try {
-    const response = await getPostsDB(user_id);
+    const response = await getPostsDB(user_id, offset);
     res.status(200).json(response);
   } catch (err) {
     res.status(500).send(err.message);
@@ -94,14 +98,26 @@ export const getPost = async (req, res) => {
 
 export const postShare = async (req, res) => {
 
-  const {id} = req.params
+  const { id } = req.params
   const user_id = res.locals.user.id
 
-  try{
+  try {
     const response = await postShareDB(id, user_id)
     res.sendStatus(200)
-  }catch(err){
+  } catch (err) {
     res.status(500).send(err.message)
   }
 };
 
+export const checkNewPosts = async (req, res) => {
+  const user_id = res.locals.user.id;
+
+  const { last } = req.params;
+
+  try {
+    const response = await getNewPostsQtnd(last);
+    res.status(200).json(Number(response.rows[0].count));
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+};
