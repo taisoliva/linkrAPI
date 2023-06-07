@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { schemaValidator } from "../middlewares/schemaValidator.js";
-import userSchema from "../schemas/user.Schema.js";
-import loginSchema from "../schemas/login.Schema.js";
+import userSchema from "../schemas/user.schema.js";
+import loginSchema from "../schemas/login.schema.js";
 import {
   handleLogin,
   handleLogout,
@@ -10,7 +10,7 @@ import {
   handleRefreshTokenWithoutJWT,
   postCheckCookies,
   getCheckCookies,
-} from "../controllers/auth.Controller.js";
+} from "../controllers/auths.controller.js";
 
 const authRouter = Router();
 

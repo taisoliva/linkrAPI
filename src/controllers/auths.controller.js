@@ -7,7 +7,7 @@ import {
   refreshTokenExpiresIn,
   deleteRefreshToken,
   verifyRefreshToken,
-} from "../services/auth.Service.js";
+} from "../services/auths.service.js";
 
 export const postUser = async (req, res) => {
   try {
