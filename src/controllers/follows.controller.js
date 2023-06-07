@@ -1,4 +1,4 @@
-import process from "../repositories/follow.repository.js";
+import process from "../repositories/follows.repository.js";
 export async function follow(req, res) {
   const userId = res.locals.user.id;
   const friendId = req.body.id;

@@ -11,7 +11,7 @@ import {
   checkNewPosts
 } from "../controllers/posts.controller.js";
 import { schemaValidator } from "../middlewares/schemaValidator.js";
-import editPostSchema from "../schemas/hash.schema.js";
+import editPostSchema from "../schemas/hashtag.schema.js";
 import verifyJWT from "../middlewares/verifyJWT.js";
 import publishShema from "../schemas/publish.Schema.js";
 
