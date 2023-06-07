@@ -1,6 +1,8 @@
+import { createComment } from "../services/comments.service.js";
+
 export const postComment = async (req, res) => {
     try {
-        
+        const response = createComment(req.body);
         res.status(201).json({ message: "Comment created!" });
       } catch (error) {
         console.error(error);
