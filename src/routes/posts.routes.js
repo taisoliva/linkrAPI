@@ -8,6 +8,7 @@ import {
   disLikedPost,
   getPost,
   postShare,
+  checkNewPosts
 } from "../controllers/posts.controller.js";
 import { schemaValidator } from "../middlewares/schemaValidator.js";
 import editPostSchema from "../schemas/hash.schema.js";
@@ -30,7 +31,8 @@ postsRouter.post("/likes/:id", verifyJWT, validateIdAsParams, likedPost);
 postsRouter.post("/disliked/:id", verifyJWT, validateIdAsParams, disLikedPost);
 
 postsRouter.post("/share/:id", verifyJWT, postShare)
-postsRouter.get("/", verifyJWT, getPost);
+postsRouter.get("/:offset", verifyJWT, getPost);
+postsRouter.get("/newPosts/:last", verifyJWT, checkNewPosts);
 
 
 
