@@ -259,7 +259,6 @@ export async function getPostsDB(user_id) {
 
     const sharesMap = {};
     shares.forEach((row) => {
-      console.log(row)
       if (postsIDs.includes(row.post_id)) {
         if (!sharesMap[row.post_id]) {
           sharesMap[row.post_id] = [];
@@ -291,10 +290,7 @@ export async function getPostsDB(user_id) {
         }
       }
     });
-
-    console.log(user_id)
     posts.forEach((post) => {
-      console.log(post)
       const postLikes = likesMap[post.id] || [];
       const postShare = sharesMap[post.id] || []
       const userLiked = postLikes.some((like) => like.user_id === user_id);
