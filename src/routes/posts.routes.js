@@ -13,7 +13,7 @@ import {
 import { schemaValidator } from "../middlewares/schemaValidator.js";
 import editPostSchema from "../schemas/hashtag.schema.js";
 import verifyJWT from "../middlewares/verifyJWT.js";
-import publishShema from "../schemas/publish.Schema.js";
+import publishShema from "../schemas/publish.schema.js";
 
 const postsRouter = Router();
 
