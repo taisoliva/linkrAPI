@@ -140,10 +140,7 @@ export async function likedPostDB(id, user_id) {
 export async function disLikedPostDB(id, user_id) {
   const client = await pool.connect();
   try {
-    await client.query(`DELETE FROM likes WHERE user_id=$1 AND post_id=$2`, [
-      user_id,
-      id,
-    ]);
+    await client.query(`DELETE FROM likes WHERE user_id=$1 AND post_id=$2`, [user_id, id]);
   } catch (err) {
     console.error("Error updating refresh token", err);
     throw err;
@@ -151,31 +148,26 @@ export async function disLikedPostDB(id, user_id) {
     client.release();
   }
 }
-
 export async function getPostsDB(user_id, offset) {
   const client = await pool.connect();
+  const query = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture",
+    users.id AS "user_id", likes.id AS "like_id", likes.user_id AS "like_user_id",
+    like_users.name AS "like_user_name", shares.id AS "share_id",
+    shares.user_id AS "share_user_id", share_users.name AS "share_user_name"
+    FROM posts
+    JOIN users ON users.id = posts.user_id
+    LEFT JOIN likes ON likes.post_id = posts.id
+    LEFT JOIN users AS like_users ON like_users.id = likes.user_id
+    LEFT JOIN shares ON shares.post_id = posts.id
+    LEFT JOIN users AS share_users ON share_users.id = shares.user_id
+    JOIN follows ON follows.followed_id = posts.user_id
+    WHERE follows.user_id = $1
+    ORDER BY posts.id DESC
+    LIMIT 10
+    OFFSET $2;`;
 
   try {
-    const query = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture",
-          users.id AS "user_id", likes.id AS "like_id", likes.user_id AS "like_user_id",
-          like_users.name AS "like_user_name", shares.id AS "share_id",
-          shares.user_id AS "share_user_id", share_users.name AS "share_user_name"
-          FROM posts
-          JOIN users ON users.id = posts.user_id
-          LEFT JOIN likes ON likes.post_id = posts.id
-          LEFT JOIN users AS like_users ON like_users.id = likes.user_id
-          LEFT JOIN shares ON shares.post_id = posts.id
-          LEFT JOIN users AS share_users ON share_users.id = shares.user_id
-          ORDER BY posts.id DESC
-          LIMIT 10 * $1
-          OFFSET $2;`;
-
-    const result = await client.query(query, [
-      Number(offset[0]),
-      Number(offset[1]),
-    ]);
-
-    const posts = result.rows;
+    const { rows: posts } = await client.query(query, [Number(user_id), offset]);
     const postsWithLikes = [];
 
     const likesMap = {};
@@ -199,9 +191,7 @@ export async function getPostsDB(user_id, offset) {
           sharesMap[row.id] = [];
         }
 
-        const shareExists = sharesMap[row.id].some(
-          (share) => share.id === row.share_id
-        );
+        const shareExists = sharesMap[row.id].some((share) => share.id === row.share_id);
 
         if (!shareExists) {
           sharesMap[row.id].push({
@@ -224,7 +214,6 @@ export async function getPostsDB(user_id, offset) {
         userLiked: userLiked,
       };
 
-      // Deletar informações que não preciso usar
       delete formattedPost.like_id;
       delete formattedPost.like_user_id;
       delete formattedPost.like_user_name;
@@ -246,6 +235,101 @@ export async function getPostsDB(user_id, offset) {
     client.release();
   }
 }
+
+// export async function getPostsDB(user_id, offset) {
+//   const client = await pool.connect();
+
+//   try {
+//     const query = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture",
+//           users.id AS "user_id", likes.id AS "like_id", likes.user_id AS "like_user_id",
+//           like_users.name AS "like_user_name", shares.id AS "share_id",
+//           shares.user_id AS "share_user_id", share_users.name AS "share_user_name"
+//           FROM posts
+//           JOIN users ON users.id = posts.user_id
+//           LEFT JOIN likes ON likes.post_id = posts.id
+//           LEFT JOIN users AS like_users ON like_users.id = likes.user_id
+//           LEFT JOIN shares ON shares.post_id = posts.id
+//           LEFT JOIN users AS share_users ON share_users.id = shares.user_id
+//           ORDER BY posts.id DESC
+//           LIMIT 10 * $1
+//           OFFSET $2;`;
+
+//     const result = await client.query(query, [
+//       Number(offset[0]),
+//       Number(offset[1]),
+//     ]);
+
+//     const posts = result.rows;
+//     const postsWithLikes = [];
+
+//     const likesMap = {};
+//     posts.forEach((row) => {
+//       if (row.like_id) {
+//         if (!likesMap[row.id]) {
+//           likesMap[row.id] = [];
+//         }
+//         likesMap[row.id].push({
+//           id: row.like_id,
+//           user_id: row.like_user_id,
+//           user_name: row.like_user_name,
+//         });
+//       }
+//     });
+
+//     const sharesMap = {};
+//     posts.forEach((row) => {
+//       if (row.share_id) {
+//         if (!sharesMap[row.id]) {
+//           sharesMap[row.id] = [];
+//         }
+
+//         const shareExists = sharesMap[row.id].some(
+//           (share) => share.id === row.share_id
+//         );
+
+//         if (!shareExists) {
+//           sharesMap[row.id].push({
+//             id: row.share_id,
+//             user_id: row.share_user_id,
+//             user_name: row.share_user_name,
+//           });
+//         }
+//       }
+//     });
+
+//     posts.forEach((post) => {
+//       const postLikes = likesMap[post.id] || [];
+//       const postShare = sharesMap[post.id] || [];
+//       const userLiked = postLikes.some((like) => like.user_id === user_id);
+//       const formattedPost = {
+//         ...post,
+//         likes: postLikes,
+//         share: postShare,
+//         userLiked: userLiked,
+//       };
+
+//       // Deletar informações que não preciso usar
+//       delete formattedPost.like_id;
+//       delete formattedPost.like_user_id;
+//       delete formattedPost.like_user_name;
+//       delete formattedPost.share_id;
+//       delete formattedPost.share_user_id;
+//       delete formattedPost.share_user_name;
+//       postsWithLikes.push(formattedPost);
+//     });
+
+//     let uniqueArray = postsWithLikes.filter(
+//       (item, index, arr) => arr.findIndex((el) => el.id === item.id) === index
+//     );
+
+//     return uniqueArray;
+//   } catch (err) {
+//     console.error("Error retrieving posts with likes and users", err);
+//     throw err;
+//   } finally {
+//     client.release();
+//   }
+// }
 
 export async function postShareDB(id, user_id) {
   const client = await pool.connect();
