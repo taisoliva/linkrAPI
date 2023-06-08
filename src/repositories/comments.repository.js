@@ -21,7 +21,7 @@ export const createUser = async (commentData) => {
 export const getCommentsFromPostId = async (post_id) => {
   const client = await pool.connect();
   try {
-    const query = `SELECT comments.*, users.*
+    const query = `SELECT comments.*, users.name, users.picture
                     FROM comments
                     JOIN users ON users.id = comments.user_id
                     WHERE comments.post_id = $1
