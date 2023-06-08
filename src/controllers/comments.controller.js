@@ -10,4 +10,13 @@ export const postComment = async (req, res) => {
   }
 };
 
-export const getCommentsWithPostId = (req, res) => {};
+export const getCommentsWithPostId = async (req, res) => {
+  try {
+    const comments = await getCommentsFromPost({post_id: req.params.id})
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+
+};
