@@ -225,11 +225,11 @@ export async function getPostsDB(user_id, offset) {
                         FROM posts
                         JOIN users ON users.id = posts.user_id
                         ORDER BY posts.id DESC
-                        LIMIT 10 * $1
+                        LIMIT $1
                         OFFSET $2 ;`;
 
     const resultPosts = await client.query(queryPosts, [
-      Number(offset[0]),
+      Number(offset[0]) * 10,
       Number(offset[1]),
     ]);
 
