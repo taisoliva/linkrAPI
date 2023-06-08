@@ -15,7 +15,7 @@ export async function findPostsByUserId(id) {
                           OFFSET $2 ;`
 
 
-    const resultPosts = await client.query(query, [
+    const resultPosts = await client.query(queryPosts, [
       Number(offset[0]),
       Number(offset[1]),
     ]);
@@ -217,7 +217,7 @@ export async function getPostsDB(user_id, offset) {
                         OFFSET $2 ;`
 
 
-    const resultPosts = await client.query(query, [
+    const resultPosts = await client.query(queryPosts, [
       Number(offset[0]),
       Number(offset[1]),
     ]);
