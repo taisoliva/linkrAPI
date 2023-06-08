@@ -1,46 +1,58 @@
 import pool from "../configs/dbConn.js";
 
 export async function findPostsByUserId(id) {
-
   const client = await pool.connect();
 
   try {
-
     const queryPosts = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture"
                           FROM posts
                           JOIN users ON users.id = posts.user_id
                           WHERE posts.user_id = ${id}
                           ORDER BY posts.id DESC
-                          LIMIT 10 * $1
-                          OFFSET $2 ;`
+/*                           LIMIT 10 * $1
+                          OFFSET $2  */;`;
 
-
-    const resultPosts = await client.query(queryPosts, [
+    const resultPosts = await client.query(
+      queryPosts /*  [
       Number(offset[0]),
       Number(offset[1]),
-    ]);
-    
+    ] */
+    );
+
     const posts = resultPosts.rows;
 
-    const postsIDs = posts.map(obj => obj.id)
+    const postsIDs = posts.map((obj) => obj.id);
 
     const queryLikes = `SELECT likes.*, users.name AS "like_user_name" 
                           FROM likes
                           JOIN users ON users.id = likes.user_id
                           WHERE likes.post_id = ANY($1::int[])
-                          `
+                          `;
     const queryShares = `SELECT shares.*, users.name AS "share_user_name"
                            FROM shares
                            JOIN users ON users.id = shares.user_id
-                           WHERE shares.post_id = ANY($1::int[])`
+                           WHERE shares.post_id = ANY($1::int[])
+                           `;
 
-    const resultLikes = await client.query(queryLikes, [postsIDs])
-    const likes = resultLikes.rows
+    const queryCommentsCount = `SELECT posts.id AS post_id, COUNT(comments.id) AS comments_count
+                                  FROM posts
+                                  LEFT JOIN comments ON posts.id = comments.post_id
+                                  WHERE posts.id = ANY($1::int[])
+                                  GROUP BY posts.id
+                                `;
 
-    const resultShares = await client.query(queryShares, [postsIDs])
-    const shares = resultShares.rows
+    const resultLikes = await client.query(queryLikes, [postsIDs]);
+    const likes = resultLikes.rows;
 
-    const repostsIDs = shares.map(obj => obj.repost_id)
+    const resultShares = await client.query(queryShares, [postsIDs]);
+    const shares = resultShares.rows;
+
+    const resultCommentsCount = await client.query(queryCommentsCount, [
+      postsIDs,
+    ]);
+    const commentsCount = resultCommentsCount.rows;
+
+    const repostsIDs = shares.map((obj) => obj.repost_id);
 
     const postsWithLikes = [];
     const likesMap = {};
@@ -55,9 +67,8 @@ export async function findPostsByUserId(id) {
           user_id: row.user_id,
           user_name: row.like_user_name,
         });
-
       }
-    })
+    });
 
     const sharesMap = {};
     shares.forEach((row) => {
@@ -71,8 +82,8 @@ export async function findPostsByUserId(id) {
           user_id: row.user_id,
           user_name: row.share_user_name,
           postID: row.post_id,
-          repostID: row.repost_id
-        })
+          repostID: row.repost_id,
+        });
 
         if (repostsIDs.includes(row.repost_id)) {
           if (likesMap[row.post_id]) {
@@ -80,36 +91,38 @@ export async function findPostsByUserId(id) {
               likesMap[row.repost_id] = [];
             }
 
-            likesMap[row.repost_id].push(...likesMap[row.post_id])
+            likesMap[row.repost_id].push(...likesMap[row.post_id]);
           }
           if (sharesMap[row.post_id]) {
             if (!sharesMap[row.repost_id]) {
               sharesMap[row.repost_id] = [];
             }
 
-            sharesMap[row.repost_id].push(...sharesMap[row.post_id])
+            sharesMap[row.repost_id].push(...sharesMap[row.post_id]);
           }
         }
       }
     });
     posts.forEach((post) => {
       const postLikes = likesMap[post.id] || [];
-      const postShare = sharesMap[post.id] || []
+      const postShare = sharesMap[post.id] || [];
       const userLiked = postLikes.some((like) => like.user_id === id);
+      const totalComments = commentsCount.filter(
+        (comment) => comment.post_id === post.id
+      );
 
       const formattedPost = {
         ...post,
         likes: postLikes,
         shares: postShare,
         userLiked: userLiked,
+        commentsCount: totalComments[0].comments_count,
       };
-
       // Deletar informações que não preciso usar
 
       postsWithLikes.push(formattedPost);
     });
     return postsWithLikes;
-    
   } catch (err) {
     console.error("Error retrieving posts with likes and users", err);
     throw err;
@@ -164,7 +177,7 @@ export async function createLinkDB(url, description, id) {
 
     await client.query(insertHashtagsQuery, [postId, description]);
     await client.query("COMMIT");
-    return postId
+    return postId;
   } catch (err) {
     await client.query("ROLLBACK");
     throw err;
@@ -208,14 +221,12 @@ export async function getPostsDB(user_id, offset) {
   const client = await pool.connect();
 
   try {
-
     const queryPosts = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture"
                         FROM posts
                         JOIN users ON users.id = posts.user_id
                         ORDER BY posts.id DESC
                         LIMIT 10 * $1
-                        OFFSET $2 ;`
-
+                        OFFSET $2 ;`;
 
     const resultPosts = await client.query(queryPosts, [
       Number(offset[0]),
@@ -224,25 +235,37 @@ export async function getPostsDB(user_id, offset) {
 
     const posts = resultPosts.rows;
 
-    const postsIDs = posts.map(obj => obj.id)
+    const postsIDs = posts.map((obj) => obj.id);
 
     const queryLikes = `SELECT likes.*, users.name AS "like_user_name" 
                         FROM likes
                         JOIN users ON users.id = likes.user_id
                         WHERE likes.post_id = ANY($1::int[])
-                        `
+                        `;
     const queryShares = `SELECT shares.*, users.name AS "share_user_name"
                          FROM shares
                          JOIN users ON users.id = shares.user_id
-                         WHERE shares.post_id = ANY($1::int[])`
+                         WHERE shares.post_id = ANY($1::int[])`;
+                         
+    const queryCommentsCount = `SELECT posts.id AS post_id, COUNT(comments.id) AS comments_count
+                         FROM posts
+                         LEFT JOIN comments ON posts.id = comments.post_id
+                         WHERE posts.id = ANY($1::int[])
+                         GROUP BY posts.id
+                       `;
 
-    const resultLikes = await client.query(queryLikes, [postsIDs])
-    const likes = resultLikes.rows
+    const resultLikes = await client.query(queryLikes, [postsIDs]);
+    const likes = resultLikes.rows;
 
-    const resultShares = await client.query(queryShares, [postsIDs])
-    const shares = resultShares.rows
+    const resultShares = await client.query(queryShares, [postsIDs]);
+    const shares = resultShares.rows;
 
-    const repostsIDs = shares.map(obj => obj.repost_id)
+    const resultCommentsCount = await client.query(queryCommentsCount, [
+      postsIDs,
+    ]);
+    const commentsCount = resultCommentsCount.rows;
+
+    const repostsIDs = shares.map((obj) => obj.repost_id);
 
     const postsWithLikes = [];
     const likesMap = {};
@@ -257,9 +280,8 @@ export async function getPostsDB(user_id, offset) {
           user_id: row.user_id,
           user_name: row.like_user_name,
         });
-
       }
-    })
+    });
 
     const sharesMap = {};
     shares.forEach((row) => {
@@ -273,8 +295,8 @@ export async function getPostsDB(user_id, offset) {
           user_id: row.user_id,
           user_name: row.share_user_name,
           postID: row.post_id,
-          repostID: row.repost_id
-        })
+          repostID: row.repost_id,
+        });
 
         if (repostsIDs.includes(row.repost_id)) {
           if (likesMap[row.post_id]) {
@@ -282,34 +304,36 @@ export async function getPostsDB(user_id, offset) {
               likesMap[row.repost_id] = [];
             }
 
-            likesMap[row.repost_id].push(...likesMap[row.post_id])
+            likesMap[row.repost_id].push(...likesMap[row.post_id]);
           }
           if (sharesMap[row.post_id]) {
             if (!sharesMap[row.repost_id]) {
               sharesMap[row.repost_id] = [];
             }
 
-            sharesMap[row.repost_id].push(...sharesMap[row.post_id])
+            sharesMap[row.repost_id].push(...sharesMap[row.post_id]);
           }
         }
       }
     });
     posts.forEach((post) => {
       const postLikes = likesMap[post.id] || [];
-      const postShare = sharesMap[post.id] || []
+      const postShare = sharesMap[post.id] || [];
       const userLiked = postLikes.some((like) => like.user_id === user_id);
+      const totalComments = commentsCount.filter(
+        (comment) => comment.post_id === post.id
+      );
 
       const formattedPost = {
         ...post,
         likes: postLikes,
         shares: postShare,
         userLiked: userLiked,
+        commentsCount: totalComments[0].comments_count,
       };
-
       postsWithLikes.push(formattedPost);
     });
     return postsWithLikes;
-
   } catch (err) {
     console.error("Error retrieving posts with likes and users", err);
     throw err;
@@ -319,14 +343,12 @@ export async function getPostsDB(user_id, offset) {
 }
 
 export async function postShareDB(id, user_id, repost) {
-  const client = await pool.connect()
+  const client = await pool.connect();
 
   try {
-
-    const query = `INSERT INTO shares (user_id, post_id, repost_id ) VALUES ($1, $2, $3) RETURNING id`
+    const query = `INSERT INTO shares (user_id, post_id, repost_id ) VALUES ($1, $2, $3) RETURNING id`;
     const result = await client.query(query, [user_id, id, repost]);
-    return result
-
+    return result;
   } catch (err) {
     console.error("Error retrieving posts with likes and users", err);
     throw err;
