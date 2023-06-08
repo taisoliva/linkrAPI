@@ -1,4 +1,7 @@
-import { createComment } from "../services/comments.service.js";
+import {
+  createComment,
+  getCommentsFromPostId,
+} from "../services/comments.service.js";
 
 export const postComment = async (req, res) => {
   try {
@@ -12,11 +15,11 @@ export const postComment = async (req, res) => {
 
 export const getCommentsWithPostId = async (req, res) => {
   try {
-    const comments = await getCommentsFromPost({post_id: req.params.id})
+    const comments = await getCommentsFromPostId(req.params.id);
 
+    res.status(200).json(comments);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
-
 };
