@@ -252,7 +252,7 @@ CREATE TABLE public.users (
     name character varying(255) NOT NULL,
     password character varying(255) NOT NULL,
     email character varying(255) NOT NULL,
-    picture character varying(255)
+    picture character varying(500)
 );
 
 
@@ -377,19 +377,6 @@ COPY public.shares (id, user_id, post_id, repost_id) FROM stdin;
 --
 -- Data for Name: tokens; Type: TABLE DATA; Schema: public; Owner: -
 --
-
-COPY public.tokens (id, refresh_token, user_id) FROM stdin;
-1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNjg1OTA4Njk3LCJleHAiOjE3NzIzMDg2OTd9.MvKV69y-7RhQ755afxlgM0QWbtE1akZovWZmpzzxinQ	2
-2	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjg1OTgwMjAzLCJleHAiOjE3NzIzODAyMDN9._K_GWjA9um-CxG1I5vKY4h35NhwrgoFGAMFCvCLEAUg	1
-
-
---
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.users (id, name, password, email, picture) FROM stdin;
-1	Thomas Andrioli Leick	$2b$10$4gxbhtSxrDrOl96eKmZ72eUpG6.041JHUe6FoDdqwTkP0gKlPCvqS	thomasaleick@gmail.com	https://st2.depositphotos.com/3474805/7901/v/950/depositphotos_79018618-stock-illustration-cool-ice-cubes.jpg
-2	Thomas Andrioli Leick	$2b$10$IJKYRcWhrHxS4PkZRYTRtOlSNYn6nKKYjL9e8sEqFpKcMnXo7hClC	thomasaleickk@gmail.com	https://st2.depositphotos.com/3474805/7901/v/950/depositphotos_79018618-stock-illustration-cool-ice-cubes.jpg
 
 --
 -- Name: comments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
