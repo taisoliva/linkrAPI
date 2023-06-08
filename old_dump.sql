@@ -23,70 +23,6 @@ SET default_table_access_method = heap;
 CREATE ROLE linkrdbuser WITH LOGIN PASSWORD 'senha_super_secreta_linkrdbuser' CREATEDB;
 
 --
--- Name: comments; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.comments (
-    id integer NOT NULL,
-    user_id integer NOT NULL,
-    post_id integer NOT NULL,
-    comment text NOT NULL
-);
-
-
---
--- Name: comments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.comments_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: comments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.comments_id_seq OWNED BY public.comments.id;
-
-
---
--- Name: follows; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.follows (
-    id integer NOT NULL,
-    user_id integer NOT NULL,
-    followed_id integer NOT NULL,
-    CONSTRAINT follows_user_not_follow_self CHECK ((user_id <> followed_id))
-);
-
-
---
--- Name: follows_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.follows_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: follows_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.follows_id_seq OWNED BY public.follows.id;
-
-
---
 -- Name: hashtags; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -181,38 +117,6 @@ ALTER SEQUENCE public.posts_id_seq OWNED BY public.posts.id;
 
 
 --
--- Name: shares; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.shares (
-    id integer NOT NULL,
-    user_id integer NOT NULL,
-    post_id integer NOT NULL,
-    repost_id integer
-);
-
-
---
--- Name: shares_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.shares_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: shares_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.shares_id_seq OWNED BY public.shares.id;
-
-
---
 -- Name: tokens; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -252,7 +156,7 @@ CREATE TABLE public.users (
     name character varying(255) NOT NULL,
     password character varying(255) NOT NULL,
     email character varying(255) NOT NULL,
-    picture character varying(255)
+    picture character varying(255) NOT NULL
 );
 
 
@@ -277,20 +181,6 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
--- Name: comments id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.comments ALTER COLUMN id SET DEFAULT nextval('public.comments_id_seq'::regclass);
-
-
---
--- Name: follows id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.follows ALTER COLUMN id SET DEFAULT nextval('public.follows_id_seq'::regclass);
-
-
---
 -- Name: hashtags id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -312,13 +202,6 @@ ALTER TABLE ONLY public.posts ALTER COLUMN id SET DEFAULT nextval('public.posts_
 
 
 --
--- Name: shares id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.shares ALTER COLUMN id SET DEFAULT nextval('public.shares_id_seq'::regclass);
-
-
---
 -- Name: tokens id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -333,85 +216,33 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
--- Data for Name: comments; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.comments (id, user_id, post_id, comment) FROM stdin;
-\.
-
-
---
--- Data for Name: follows; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.follows (id, user_id, followed_id) FROM stdin;
-\.
-
-
---
 -- Data for Name: hashtags; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.hashtags (id, post_id, hash_name) FROM stdin;
-\.
 
 
 --
 -- Data for Name: likes; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.likes (id, user_id, post_id) FROM stdin;
-\.
 
 
 --
 -- Data for Name: posts; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.posts (id, link, description, user_id) FROM stdin;
-\.
-
-
---
--- Data for Name: shares; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.shares (id, user_id, post_id, repost_id) FROM stdin;
-\.
 
 
 --
 -- Data for Name: tokens; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.tokens (id, refresh_token, user_id) FROM stdin;
-1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNjg1OTA4Njk3LCJleHAiOjE3NzIzMDg2OTd9.MvKV69y-7RhQ755afxlgM0QWbtE1akZovWZmpzzxinQ	2
-2	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjg1OTgwMjAzLCJleHAiOjE3NzIzODAyMDN9._K_GWjA9um-CxG1I5vKY4h35NhwrgoFGAMFCvCLEAUg	1
-\.
 
 
 --
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.users (id, name, password, email, picture) FROM stdin;
-1	Thomas Andrioli Leick	$2b$10$4gxbhtSxrDrOl96eKmZ72eUpG6.041JHUe6FoDdqwTkP0gKlPCvqS	thomasaleick@gmail.com	https://st2.depositphotos.com/3474805/7901/v/950/depositphotos_79018618-stock-illustration-cool-ice-cubes.jpg
-2	Thomas Andrioli Leick	$2b$10$IJKYRcWhrHxS4PkZRYTRtOlSNYn6nKKYjL9e8sEqFpKcMnXo7hClC	thomasaleickk@gmail.com	https://st2.depositphotos.com/3474805/7901/v/950/depositphotos_79018618-stock-illustration-cool-ice-cubes.jpg
-\.
-
-
---
--- Name: comments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.comments_id_seq', 1, false);
-
-
---
--- Name: follows_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.follows_id_seq', 1, false);
 
 
 --
@@ -436,48 +267,17 @@ SELECT pg_catalog.setval('public.posts_id_seq', 1, false);
 
 
 --
--- Name: shares_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.shares_id_seq', 1, false);
-
-
---
 -- Name: tokens_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.tokens_id_seq', 2, true);
+SELECT pg_catalog.setval('public.tokens_id_seq', 1, false);
 
 
 --
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 2, true);
-
-
---
--- Name: comments comments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.comments
-    ADD CONSTRAINT comments_pkey PRIMARY KEY (id);
-
-
---
--- Name: follows follows_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.follows
-    ADD CONSTRAINT follows_pkey PRIMARY KEY (id);
-
-
---
--- Name: follows follows_unique_user_followed; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.follows
-    ADD CONSTRAINT follows_unique_user_followed UNIQUE (user_id, followed_id);
+SELECT pg_catalog.setval('public.users_id_seq', 1, false);
 
 
 --
@@ -502,14 +302,6 @@ ALTER TABLE ONLY public.likes
 
 ALTER TABLE ONLY public.posts
     ADD CONSTRAINT posts_pkey PRIMARY KEY (id);
-
-
---
--- Name: shares shares_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.shares
-    ADD CONSTRAINT shares_pkey PRIMARY KEY (id);
 
 
 --
@@ -545,38 +337,6 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: comments comments_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.comments
-    ADD CONSTRAINT comments_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id) ON DELETE CASCADE;
-
-
---
--- Name: comments comments_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.comments
-    ADD CONSTRAINT comments_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
-
-
---
--- Name: follows follows_followed_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.follows
-    ADD CONSTRAINT follows_followed_id_fkey FOREIGN KEY (followed_id) REFERENCES public.users(id);
-
-
---
--- Name: follows follows_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.follows
-    ADD CONSTRAINT follows_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
-
-
---
 -- Name: hashtags hashtags_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -606,30 +366,6 @@ ALTER TABLE ONLY public.likes
 
 ALTER TABLE ONLY public.posts
     ADD CONSTRAINT posts_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
-
-
---
--- Name: shares shares_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.shares
-    ADD CONSTRAINT shares_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id) ON DELETE CASCADE;
-
-
---
--- Name: shares shares_repost_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.shares
-    ADD CONSTRAINT shares_repost_id_fkey FOREIGN KEY (repost_id) REFERENCES public.posts(id) ON DELETE CASCADE;
-
-
---
--- Name: shares shares_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.shares
-    ADD CONSTRAINT shares_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -713,3 +449,4 @@ GRANT ALL ON SEQUENCE public.users_id_seq TO linkrdbuser;
 --
 -- PostgreSQL database dump complete
 --
+
