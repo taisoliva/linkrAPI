@@ -1,67 +1,102 @@
 import pool from "../configs/dbConn.js";
 
 export async function findPostsByUserId(id) {
-  console.log(typeof (id))
+
   const client = await pool.connect();
+
   try {
-    const query = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture",
-          users.id AS "user_id", likes.id AS "like_id", likes.user_id AS "like_user_id",
-          like_users.name AS "like_user_name", shares.id AS "share_id",
-          shares.user_id AS "share_user_id", share_users.name AS "share_user_name"
-          FROM posts
-          JOIN users ON users.id = posts.user_id
-          LEFT JOIN likes ON likes.post_id = posts.id
-          LEFT JOIN users AS like_users ON like_users.id = likes.user_id
-          LEFT JOIN shares ON shares.post_id = posts.id
-          LEFT JOIN users AS share_users ON share_users.id =  shares.user_id
-          WHERE posts.user_id = ${id}
-          ORDER BY posts.id DESC;
-      `;
-    const result = await client.query(query);
 
-    const posts = result.rows;
+    const queryPosts = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture"
+                          FROM posts
+                          JOIN users ON users.id = posts.user_id
+                          WHERE posts.user_id = ${id}
+                          ORDER BY posts.id DESC
+                          LIMIT 10 * $1
+                          OFFSET $2 ;`
+
+
+    const resultPosts = await client.query(query, [
+      Number(offset[0]),
+      Number(offset[1]),
+    ]);
+    
+    const posts = resultPosts.rows;
+
+    const postsIDs = posts.map(obj => obj.id)
+
+    const queryLikes = `SELECT likes.*, users.name AS "like_user_name" 
+                          FROM likes
+                          JOIN users ON users.id = likes.user_id
+                          WHERE likes.post_id = ANY($1::int[])
+                          `
+    const queryShares = `SELECT shares.*, users.name AS "share_user_name"
+                           FROM shares
+                           JOIN users ON users.id = shares.user_id
+                           WHERE shares.post_id = ANY($1::int[])`
+
+    const resultLikes = await client.query(queryLikes, [postsIDs])
+    const likes = resultLikes.rows
+
+    const resultShares = await client.query(queryShares, [postsIDs])
+    const shares = resultShares.rows
+
+    const repostsIDs = shares.map(obj => obj.repost_id)
+
     const postsWithLikes = [];
-
-    // Agrupar os likes pelo post_id
     const likesMap = {};
-    result.rows.forEach((row) => {
-      if (row.like_id) {
-        if (!likesMap[row.id]) {
-          likesMap[row.id] = [];
+
+    likes.forEach((row) => {
+      if (postsIDs.includes(row.post_id)) {
+        if (!likesMap[row.post_id]) {
+          likesMap[row.post_id] = [];
         }
-        likesMap[row.id].push({
-          id: row.like_id,
-          user_id: row.like_user_id,
+        likesMap[row.post_id].push({
+          id: row.id,
+          user_id: row.user_id,
           user_name: row.like_user_name,
         });
+
       }
-    });
-
-
+    })
 
     const sharesMap = {};
-    posts.forEach((row) => {
-      if (row.share_id) {
-        if (!sharesMap[row.id]) {
-          sharesMap[row.id] = [];
+    shares.forEach((row) => {
+      if (postsIDs.includes(row.post_id)) {
+        if (!sharesMap[row.post_id]) {
+          sharesMap[row.post_id] = [];
         }
 
-        const shareExists = sharesMap[row.id].some((share) => share.id === row.share_id)
+        sharesMap[row.post_id].push({
+          id: row.id,
+          user_id: row.user_id,
+          user_name: row.share_user_name,
+          postID: row.post_id,
+          repostID: row.repost_id
+        })
 
-        if (!shareExists) {
-          sharesMap[row.id].push({
-            id: row.share_id,
-            user_id: row.share_user_id,
-            user_name: row.share_user_name,
-          })
+        if (repostsIDs.includes(row.repost_id)) {
+          if (likesMap[row.post_id]) {
+            if (!likesMap[row.repost_id]) {
+              likesMap[row.repost_id] = [];
+            }
+
+            likesMap[row.repost_id].push(...likesMap[row.post_id])
+          }
+          if (sharesMap[row.post_id]) {
+            if (!sharesMap[row.repost_id]) {
+              sharesMap[row.repost_id] = [];
+            }
+
+            sharesMap[row.repost_id].push(...sharesMap[row.post_id])
+          }
         }
       }
     });
-
     posts.forEach((post) => {
       const postLikes = likesMap[post.id] || [];
       const postShare = sharesMap[post.id] || []
       const userLiked = postLikes.some((like) => like.user_id === id);
+
       const formattedPost = {
         ...post,
         likes: postLikes,
@@ -70,21 +105,11 @@ export async function findPostsByUserId(id) {
       };
 
       // Deletar informações que não preciso usar
-      delete formattedPost.like_id;
-      delete formattedPost.like_user_id;
-      delete formattedPost.like_user_name;
-      delete formattedPost.share_id;
-      delete formattedPost.share_user_id;
-      delete formattedPost.share_user_name;
+
       postsWithLikes.push(formattedPost);
     });
-
-    let uniqueArray = postsWithLikes.filter(
-      (item, index, arr) => arr.findIndex((el) => el.id === item.id) === index
-    );
-
-    return uniqueArray
-
+    return postsWithLikes;
+    
   } catch (err) {
     console.error("Error retrieving posts with likes and users", err);
     throw err;
@@ -179,44 +204,24 @@ export async function disLikedPostDB(id, user_id) {
   }
 }
 
-export async function getPostsDB(user_id) {
+export async function getPostsDB(user_id, offset) {
   const client = await pool.connect();
+
   try {
-    /*const query = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture",
-          users.id AS "user_id", likes.id AS "like_id", likes.user_id AS "like_user_id",
-          like_users.name AS "like_user_name", shares.id AS "share_id",
-          shares.user_id AS "share_user_id", share_users.name AS "share_user_name", shares.repost_id
-          FROM posts
-          JOIN users ON users.id = posts.user_id
-          LEFT JOIN likes ON likes.post_id = posts.id
-          LEFT JOIN users AS like_users ON like_users.id = likes.user_id
-          LEFT JOIN shares ON shares.post_id = posts.id
-          LEFT JOIN users AS share_users ON share_users.id =  shares.user_id
-          ORDER BY posts.id DESC;`;*/
-
-
-    /*const query = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture",
-                  users.id AS "user_id", likes.id AS "like_id", likes.user_id AS "like_user_id",
-                  like_users.name AS "like_user_name", shares.id AS "share_id",
-                  shares.user_id AS "share_user_id", share_users.name AS "share_user_name",
-                  shares.repost_id, reposts.post_id AS "repost_post_id"
-                  FROM posts
-                  JOIN users ON users.id = posts.user_id
-                  LEFT JOIN likes ON likes.post_id = posts.id
-                  LEFT JOIN users AS like_users ON like_users.id = likes.user_id
-                  LEFT JOIN shares ON shares.post_id = posts.id
-                  LEFT JOIN shares AS reposts ON reposts.repost_id = posts.id
-                  LEFT JOIN users AS share_users ON share_users.id = shares.user_id
-                  ORDER BY posts.id DESC;`*/
 
     const queryPosts = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture"
                         FROM posts
                         JOIN users ON users.id = posts.user_id
                         ORDER BY posts.id DESC
                         LIMIT 10 * $1
-                        ;`
+                        OFFSET $2 ;`
 
-    const resultPosts = await client.query(queryPosts, [3]);
+
+    const resultPosts = await client.query(query, [
+      Number(offset[0]),
+      Number(offset[1]),
+    ]);
+
     const posts = resultPosts.rows;
 
     const postsIDs = posts.map(obj => obj.id)
@@ -238,7 +243,6 @@ export async function getPostsDB(user_id) {
     const shares = resultShares.rows
 
     const repostsIDs = shares.map(obj => obj.repost_id)
-
 
     const postsWithLikes = [];
     const likesMap = {};
@@ -302,97 +306,9 @@ export async function getPostsDB(user_id) {
         userLiked: userLiked,
       };
 
-      // Deletar informações que não preciso usar
-     
       postsWithLikes.push(formattedPost);
     });
-
-
-  
-    /*posts.forEach((row) => {
-      if (row.like_id) {
-        if (!likesMap[row.id]) {
-          likesMap[row.id] = [];
-        }
-        likesMap[row.id].push({
-          id: row.like_id,
-          user_id: row.like_user_id,
-          user_name: row.like_user_name,
-        });
-      }
-    });
-
-    console.log(likesMap)
-
-    const sharesMap = {};
-    posts.forEach((row) => {
-      if (row.share_id) {
-        if (!sharesMap[row.id]) {
-          sharesMap[row.id] = [];
-        }
-
-        const shareExists = sharesMap[row.id].some((share) => share.id === row.share_id)
-
-        if (!shareExists) {
-          sharesMap[row.id].push({
-            id: row.share_id,
-            user_id: row.share_user_id,
-            user_name: row.share_user_name,
-            repostID: row.repost_id
-          })
-        }
-      }
-    });
-
-    posts.forEach((post) => {
-      const repostID = post.repost_post_id
-      if (repostID) {
-        if (!likesMap[post.id]) {
-          likesMap[post.id] = [];
-        }
-
-        if (likesMap[repostID]) {
-          likesMap[post.id].push(...likesMap[repostID])
-        }
-
-
-        if (!sharesMap[post.id]) {
-          sharesMap[post.id] = [];
-        }
-
-        if (sharesMap[repostID]) {
-          sharesMap[post.id]?.push(...sharesMap[repostID])
-        }
-      }
-    })
-
-    posts.forEach((post) => {
-      const postLikes = likesMap[post.id] || [];
-      const postShare = sharesMap[post.id] || []
-      const userLiked = postLikes.some((like) => like.user_id === user_id);
-      const formattedPost = {
-        ...post,
-        likes: postLikes,
-        shares: postShare,
-        userLiked: userLiked,
-      };
-
-      // Deletar informações que não preciso usar
-      delete formattedPost.like_id;
-      delete formattedPost.like_user_id;
-      delete formattedPost.like_user_name;
-      delete formattedPost.share_id;
-      delete formattedPost.share_user_id;
-      delete formattedPost.share_user_name;
-      postsWithLikes.push(formattedPost);
-    });
-
-    let uniqueArray = postsWithLikes.filter(
-      (item, index, arr) => arr.findIndex((el) => el.id === item.id) === index
-    );
-
-    const limitedPosts = uniqueArray.slice(0, 20); // Limitar o número de posts ao valor desejado */
-    return postsWithLikes
+    return postsWithLikes;
 
   } catch (err) {
     console.error("Error retrieving posts with likes and users", err);
@@ -400,7 +316,6 @@ export async function getPostsDB(user_id) {
   } finally {
     client.release();
   }
-
 }
 
 export async function postShareDB(id, user_id, repost) {
@@ -412,13 +327,23 @@ export async function postShareDB(id, user_id, repost) {
     const result = await client.query(query, [user_id, id, repost]);
     return result
 
-
   } catch (err) {
     console.error("Error retrieving posts with likes and users", err);
     throw err;
   } finally {
     client.release();
   }
-
 }
 
+export async function getNewPostsQtnd(last) {
+  const client = await pool.connect();
+
+  const result = await client.query(
+    `SELECT COUNT(*) FROM posts WHERE id > $1`,
+    [last]
+  );
+
+  client.release();
+
+  return result;
+}

@@ -19,8 +19,7 @@ const getHashRank = async (id) => {
   }
 };
 
-const getHashDetail = async (hash) => {
-  const hashToSearch = `#${hash}`;
+const getHashDetail = async (hashToSearch) => {
   const query = `SELECT 
       p.id,
       p.link,
