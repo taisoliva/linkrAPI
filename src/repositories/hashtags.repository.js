@@ -22,36 +22,45 @@ const getHashRank = async (id) => {
 
 export async function getHashDetail(user_id, hashToSearch) {
   const client = await pool.connect();
-  const queryPosts = `
-    SELECT 
-      p.id,
-      p.link,
-      p.description,
-      p.user_id,
-      u.name AS "user_name",
-      u.picture AS "user_picture",
-      u.id AS "user_id",
-      COALESCE(pl.likes_count, 0) AS "likes_count"
-    FROM
-      posts p
-      JOIN users u ON u.id = p.user_id
-      LEFT JOIN (
-        SELECT post_id, COUNT(*) AS likes_count
-        FROM likes
-        GROUP BY post_id
-      ) pl ON pl.post_id = p.id
-      JOIN hashtags h ON h.post_id = p.id
-      LEFT JOIN follows f ON f.followed_id = p.user_id AND f.user_id = $1
-    WHERE
-      h.hash_name = $2
-    GROUP BY
-      p.id, u.id, pl.likes_count
-    ORDER BY
-      p.id DESC;
-  `;
+  
+  const queryShares = `SELECT shares.* FROM shares`
+  const resultShares = await client.query(queryShares);
+  const shares = resultShares.rows;
+  const repostsIDs = shares.map((obj) => obj.repost_id);
+
+  const queryHashs = `SELECT
+  p.id,
+  p.link,
+  p.description,
+  p.user_id,
+  u.name AS "user_name",
+  u.picture AS "user_picture",
+  u.id AS "user_id",
+  COALESCE(pl.likes_count, 0) AS "likes_count"
+FROM
+  posts p
+  JOIN users u ON u.id = p.user_id
+  LEFT JOIN (
+    SELECT post_id, COUNT(*) AS likes_count
+    FROM likes
+    GROUP BY post_id
+  ) pl ON pl.post_id = p.id
+  JOIN hashtags h ON h.post_id = p.id
+  LEFT JOIN follows f ON f.followed_id = p.user_id AND f.user_id = $1
+WHERE
+  h.hash_name = $2
+  AND p.id <> ALL ($3::int[])
+GROUP BY
+  p.id, u.id, pl.likes_count
+ORDER BY
+  p.id DESC;
+`;
+
   try {
-    const { rows: hashs } = await client.query(queryPosts, [user_id, hashToSearch]);
-    const posts = hashs.map((row) => ({
+    const { rows: hashs } = await client.query(queryHashs, [user_id, hashToSearch, repostsIDs]);
+
+    
+    /*const posts = hashs.map((row) => ({
       id: row.id,
       link: row.link,
       description: row.description,
@@ -60,9 +69,9 @@ export async function getHashDetail(user_id, hashToSearch) {
       user_picture: row.user_picture,
       likes_count: parseInt(row.likes_count),
       user_liked: false,
-    }));
+    }));*/
 
-    return posts;
+    return hashs;
   } catch (err) {
     console.error("Error retrieving posts by hashtag", err);
     throw err;
