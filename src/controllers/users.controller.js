@@ -6,6 +6,7 @@ export async function getUserProfileById(req, res) {
     const { id } = req.params;
 
     const user = await findProfileByUserId(id);
+
     if (user.rowCount <= 0) return res.sendStatus(422);
     const posts = await findPostsByUserId(id);
 

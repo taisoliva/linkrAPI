@@ -31,4 +31,19 @@ const unfollow = async (user, friend) => {
   }
 };
 
-export default { follow, unfollow };
+const following = async (user, friend) => {
+  const query = `SELECT * FROM follows
+  WHERE user_id = $1 AND followed_id = $2;`;
+  const client = await pool.connect();
+  try {
+    const result = await client.query(query, [user, friend]);
+
+    return result.rows;
+  } catch (err) {
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+export default { follow, unfollow, following };
