@@ -1,6 +1,6 @@
 import pool from "../configs/dbConn.js";
 
-export const createUser = async (commentData) => {
+export const createComment = async (commentData) => {
   const client = await pool.connect();
   try {
     const query = `INSERT INTO comments (post_id, user_id, comment) VALUES ($1, $2, $3) RETURNING *`;
@@ -24,7 +24,8 @@ export const getCommentsFromPostId = async (post_id) => {
     const query = `SELECT comments.*, users.name, users.picture
                     FROM comments
                     JOIN users ON users.id = comments.user_id
-                    WHERE comments.post_id = $1
+                    WHERE comments.post_id = $1 
+                    ORDER BY comments.id DESC 
                   `;
     const result = await client.query(query, [post_id]);
 
