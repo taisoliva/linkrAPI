@@ -49,8 +49,8 @@ export async function publishPost(req, res) {
   const { avatar, id } = res.locals.user;
   const { url, description } = req.body;
   try {
-    await createLinkDB(url, description, id);
-    res.sendStatus(201);
+   const response = await createLinkDB(url, description, id);
+    res.status(200).json({ post_id: response });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
