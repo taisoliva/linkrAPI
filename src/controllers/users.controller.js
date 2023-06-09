@@ -1,5 +1,6 @@
 import { findPostsByUserId } from "../repositories/posts.repository.js";
-import { findProfileByUserId, findUserByName, getFollowers } from "../repositories/users.repository.js";
+import { findProfileByUserId, findUserByName } from "../repositories/users.repository.js";
+import getFollowers from "../repositories/follows.repository.js"
 
 export async function getUserProfileById(req, res) {
   try {
