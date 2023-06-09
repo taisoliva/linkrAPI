@@ -11,9 +11,9 @@ import verfifyJWT from "../middlewares/verifyJWT.js";
 const followRouter = Router();
 
 followRouter.use(verfifyJWT);
+followRouter.get("/", getFollows);
 followRouter.post("/follow", schemaValidator(id), follow);
 followRouter.post("/unfollow", schemaValidator(id), unfollow);
-followRouter.get("/", getFollows);
-followRouter.get("/checkfollowing", verfifyJWT, schemaValidator(id), following);
+followRouter.get("/checkfollowing", schemaValidator(id), following);
 
 export default followRouter;
