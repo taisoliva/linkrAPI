@@ -130,7 +130,7 @@ export const checkNewPosts = async (req, res) => {
   const { last } = req.params;
 
   try {
-    const response = await getNewPostsQtnd(last);
+    const response = await getNewPostsQtnd(last, user_id);
     res.status(200).json(Number(response.rows[0].count));
   } catch (err) {
     res.status(500).send(err.message);

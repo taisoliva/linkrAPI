@@ -390,12 +390,18 @@ export async function postShareDB(id, user_id, repost) {
   }
 }
 
-export async function getNewPostsQtnd(last) {
+export async function getNewPostsQtnd(last, userId) {
   const client = await pool.connect();
 
   const result = await client.query(
-    `SELECT COUNT(*) FROM posts WHERE id > $1`,
-    [last]
+    `SELECT COUNT(*) FROM posts
+    WHERE id > $1
+    AND user_id IN (
+      SELECT followed_id
+      FROM follows
+      WHERE user_id = $2
+    )`,
+    [last, userId]
   );
 
   client.release();
