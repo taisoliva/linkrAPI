@@ -1,6 +1,6 @@
 import pool from "../configs/dbConn.js";
 
-export async function findPostsByUserId(id) {
+export async function findPostsByUserId(id, userId) {
   const client = await pool.connect();
 
   try {
@@ -98,7 +98,10 @@ export async function findPostsByUserId(id) {
           postID: row.post_id,
           repostID: row.repost_id,
         });
+      }
+    });
 
+    shares.forEach((row) => {
         if (repostsIDs.includes(row.repost_id)) {
           if (likesMap[row.post_id]) {
             if (!likesMap[row.repost_id]) {
@@ -115,12 +118,12 @@ export async function findPostsByUserId(id) {
             sharesMap[row.repost_id].push(...sharesMap[row.post_id]);
           }
         }
-      }
     });
+
     posts.forEach((post) => {
       const postLikes = likesMap[post.id] || [];
       const postShare = sharesMap[post.id] || [];
-      const userLiked = postLikes.some((like) => like.user_id === id);
+      const userLiked = postLikes.some((like) => like.user_id === userId);
       const totalComments = commentsCount.filter(
         (comment) => comment.post_id === post.id
       );
@@ -240,14 +243,10 @@ export async function getPostsDB(user_id, offset) {
                         JOIN users ON users.id = posts.user_id
                         JOIN follows ON follows.followed_id = posts.user_id
                         WHERE follows.user_id = $1
-                        ORDER BY posts.id DESC
-                        LIMIT $2
-                        OFFSET $3 ;`;
+                        ORDER BY posts.id DESC;`
 
     const resultPosts = await client.query(queryPosts, [
-      user_id,
-      Number(offset[0]) * 10,
-      Number(offset[1]),
+      user_id
     ]);
 
     const posts = resultPosts.rows;
@@ -328,7 +327,10 @@ export async function getPostsDB(user_id, offset) {
           postID: row.post_id,
           repostID: row.repost_id,
         });
+      }
+    });
 
+    shares.forEach((row) => {
         if (repostsIDs.includes(row.repost_id)) {
           if (likesMap[row.post_id]) {
             if (!likesMap[row.repost_id]) {
@@ -345,8 +347,8 @@ export async function getPostsDB(user_id, offset) {
             sharesMap[row.repost_id].push(...sharesMap[row.post_id]);
           }
         }
-      }
     });
+
     posts.forEach((post) => {
       const postLikes = likesMap[post.id] || [];
       const postShare = sharesMap[post.id] || [];
@@ -364,7 +366,9 @@ export async function getPostsDB(user_id, offset) {
       };
       postsWithLikes.push(formattedPost);
     });
-    return postsWithLikes;
+
+    const limitPost = postsWithLikes.slice(Number(offset[1]), Number(offset[1]) + Number(offset[0] * 10))
+    return limitPost;
   } catch (err) {
     console.error("Error retrieving posts with likes and users", err);
     throw err;

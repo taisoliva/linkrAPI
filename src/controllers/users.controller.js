@@ -5,11 +5,12 @@ import process from "../repositories/follows.repository.js";
 export async function getUserProfileById(req, res) {
   try {
     const { id } = req.params;
-
+    
+    const userId = res.locals.user.id
     const user = await findProfileByUserId(id);
 
     if (user.rowCount <= 0) return res.sendStatus(422);
-    const posts = await findPostsByUserId(id);
+    const posts = await findPostsByUserId(id, userId);
 
     const data = {
       name: user.rows[0].name,
