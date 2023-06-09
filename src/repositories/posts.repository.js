@@ -23,6 +23,17 @@ export async function findPostsByUserId(id) {
 
     const postsIDs = posts.map((obj) => obj.id);
 
+    const repostListQuery = `SELECT *
+    FROM shares
+    WHERE repost_id = ANY($1::int[])`;
+
+    const repostListQueryResult = await client.query(repostListQuery, [postsIDs]);
+    const repostList = repostListQueryResult.rows
+
+    const filteredPostsIDs = postsIDs.filter((id) => {
+      return !repostList.some((repost) => repost.repost_id === id);
+    });
+
     const queryLikes = `SELECT likes.*, users.name AS "like_user_name" 
                           FROM likes
                           JOIN users ON users.id = likes.user_id
@@ -48,9 +59,12 @@ export async function findPostsByUserId(id) {
     const shares = resultShares.rows;
 
     const resultCommentsCount = await client.query(queryCommentsCount, [
-      postsIDs,
+      filteredPostsIDs,
     ]);
     const commentsCount = resultCommentsCount.rows;
+    repostList.map(repost => {
+      commentsCount.push({ post_id: repost.repost_id, comments_count: commentsCount.filter(post => (post.post_id === repost.post_id))[0].comments_count })
+    })
 
     const repostsIDs = shares.map((obj) => obj.repost_id);
 
