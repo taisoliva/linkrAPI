@@ -3,7 +3,6 @@ import {
   findProfileByUserId,
   findUserByName,
 } from "../repositories/users.repository.js";
-import pool from "../configs/dbConn.js";
 
 export async function getUserProfileById(req, res) {
   try {

@@ -12,7 +12,7 @@ router.use("/", authRouter);
 router.use("/users", usersRouter);
 router.use("/posts", postsRouter);
 router.use("/hashtags", hashtagsRouter);
-router.use(followRouter);
+router.use("/follows", followRouter);
 router.use("/comments", commentsRoutes);
 
 export default router;
