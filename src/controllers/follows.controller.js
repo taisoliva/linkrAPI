@@ -3,7 +3,7 @@ import process from "../repositories/follows.repository.js";
 export async function following(req, res) {
   const user = res.locals.user.id;
   const friend = req.params.id;
-  if (user == friend) return res.status(400).send({ ownUser: true, following: false });
+  if (user == friend) return res.status(200).send({ ownUser: true, following: false });
   try {
     const result = await process.following(user, friend);
     if (!result.length) return res.status(204).send({ ownUser: false, following: false });
