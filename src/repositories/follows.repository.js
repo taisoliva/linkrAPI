@@ -5,9 +5,8 @@ const follow = async (user, friend) => {
   VALUES ($1, $2);`;
   const client = await pool.connect();
   try {
-    console.log("following");
     await pool.query(query, [user, friend]);
-    console.log("followed");
+
     return;
   } catch (err) {
     throw err;
@@ -22,7 +21,6 @@ const unfollow = async (user, friend) => {
   const client = await pool.connect();
   try {
     await client.query(query, [user, friend]);
-
     return;
   } catch (err) {
     throw err;
@@ -56,7 +54,6 @@ async function getFollowers(id) {
 
   try {
     const { rows: data } = await client.query(query, [id]);
-    console.log(data);
     return data;
   } catch (err) {
     throw err;
