@@ -224,14 +224,13 @@ export async function getPostsDB(user_id, offset) {
     const queryPosts = `SELECT posts.*, users.name AS "user_name", users.picture AS "user_picture"
                         FROM posts
                         JOIN users ON users.id = posts.user_id
+                        JOIN follows ON follows.followed_id = posts.user_id
+                        WHERE follows.user_id = $1
                         ORDER BY posts.id DESC
-                        LIMIT $1
-                        OFFSET $2 ;`;
+                        LIMIT $2
+                        OFFSET $3 ;`;
 
-    const resultPosts = await client.query(queryPosts, [
-      Number(offset[0]) * 10,
-      Number(offset[1]),
-    ]);
+    const resultPosts = await client.query(queryPosts, [user_id, Number(offset[0]) * 10, Number(offset[1])]);
 
     const posts = resultPosts.rows;
 

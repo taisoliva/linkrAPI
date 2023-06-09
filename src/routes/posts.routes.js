@@ -32,7 +32,7 @@ postsRouter.post("/repost", verifyJWT, publishRepost);
 postsRouter.post("/likes/:id", verifyJWT, validateIdAsParams, likedPost);
 postsRouter.post("/disliked/:id", verifyJWT, validateIdAsParams, disLikedPost);
 
-postsRouter.post("/share/:id", verifyJWT, postShare)
+postsRouter.post("/share/:id", verifyJWT, postShare);
 postsRouter.get("/:offset", verifyJWT, getPost);
 postsRouter.get("/newPosts/:last", verifyJWT, checkNewPosts);
 
