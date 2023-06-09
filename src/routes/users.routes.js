@@ -7,7 +7,6 @@ import {
 import verfifyJWT from "../middlewares/verifyJWT.js";
 
 const usersRouter = Router();
-
 usersRouter.get(
   "/getById/:id",
   verfifyJWT,

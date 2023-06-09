@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   follow,
-  unfollow,
+  unfollow, following,
   getFollows,
 } from "../controllers/follows.controller.js";
 import { schemaValidator } from "../middlewares/schemaValidator.js";
@@ -14,5 +14,6 @@ followRouter.use(verfifyJWT);
 followRouter.post("/follow", schemaValidator(id), follow);
 followRouter.post("/unfollow", schemaValidator(id), unfollow);
 followRouter.get("/", getFollows);
+followRouter.get("/checkfollowing", verfifyJWT, schemaValidator(id), following);
 
 export default followRouter;
