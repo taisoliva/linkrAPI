@@ -11,8 +11,9 @@ export async function getHashRank(req, res) {
 }
 
 export async function getHashDetail(req, res) {
+  const { id } = res.locals.user;
   try {
-    const hashDetail = await hash.getHashDetail(req.params.hash);
+    const hashDetail = await hash.getHashDetail(id, req.params.hash);
     if (!hashDetail) return res.status(404).send("Hash not found");
     return res.send(hashDetail);
   } catch (err) {

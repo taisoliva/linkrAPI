@@ -1,4 +1,5 @@
 import pool from "../configs/dbConn.js";
+import { getPostsDB } from "../repositories/posts.repository.js";
 
 const getHashRank = async (id) => {
   const query = `
@@ -19,8 +20,10 @@ const getHashRank = async (id) => {
   }
 };
 
-const getHashDetail = async (hashToSearch) => {
-  const query = `SELECT 
+export async function getHashDetail(user_id, hashToSearch) {
+  const client = await pool.connect();
+  const queryPosts = `
+    SELECT 
       p.id,
       p.link,
       p.description,
@@ -28,25 +31,27 @@ const getHashDetail = async (hashToSearch) => {
       u.name AS "user_name",
       u.picture AS "user_picture",
       u.id AS "user_id",
-      COUNT(l.id) AS "likes_count"
+      COALESCE(pl.likes_count, 0) AS "likes_count"
     FROM
       posts p
       JOIN users u ON u.id = p.user_id
-      LEFT JOIN likes l ON l.post_id = p.id
-      LEFT JOIN users AS like_users ON like_users.id = l.user_id
+      LEFT JOIN (
+        SELECT post_id, COUNT(*) AS likes_count
+        FROM likes
+        GROUP BY post_id
+      ) pl ON pl.post_id = p.id
       JOIN hashtags h ON h.post_id = p.id
+      LEFT JOIN follows f ON f.followed_id = p.user_id AND f.user_id = $1
     WHERE
-      h.hash_name = $1
+      h.hash_name = $2
     GROUP BY
-      p.id, u.id
+      p.id, u.id, pl.likes_count
     ORDER BY
       p.id DESC;
   `;
-  const client = await pool.connect();
   try {
-    const data = await client.query(query, [hashToSearch]);
-    if (!data?.rows?.length) return null;
-    const posts = data.rows.map((row) => ({
+    const { rows: hashs } = await client.query(queryPosts, [user_id, hashToSearch]);
+    const posts = hashs.map((row) => ({
       id: row.id,
       link: row.link,
       description: row.description,
@@ -54,17 +59,16 @@ const getHashDetail = async (hashToSearch) => {
       user_name: row.user_name,
       user_picture: row.user_picture,
       likes_count: parseInt(row.likes_count),
-      user_liked: false, // sem saber o id do user, não dá pra saber se ele curtiu ou não
+      user_liked: false,
     }));
+
     return posts;
   } catch (err) {
+    console.error("Error retrieving posts by hashtag", err);
     throw err;
   } finally {
     client.release();
   }
-};
-
-
-
+}
 
 export default { getHashRank, getHashDetail };
