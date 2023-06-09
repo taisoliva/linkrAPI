@@ -83,13 +83,16 @@ export async function disLikedPost(req, res) {
 }
 
 export const getPost = async (req, res) => {
-  const user_id = res.locals.user.id;
+  const id = res.locals.user.id;
 
   let { offset } = req.params;
   offset = offset.split(" ");
 
   try {
-    const response = await getPostsDB(user_id, offset);
+    const response = await getPostsDB(id, {
+      offset1: Number(offset[0]),
+      offset2: Number(offset[1]),
+    });
     res.status(200).json(response);
   } catch (err) {
     res.status(500).send(err.message);
