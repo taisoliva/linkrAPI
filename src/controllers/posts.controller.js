@@ -89,10 +89,7 @@ export const getPost = async (req, res) => {
   offset = offset.split(" ");
 
   try {
-    const response = await getPostsDB(id, {
-      offset1: Number(offset[0]),
-      offset2: Number(offset[1]),
-    });
+    const response = await getPostsDB(id, offset);
     res.status(200).json(response);
   } catch (err) {
     res.status(500).send(err.message);
