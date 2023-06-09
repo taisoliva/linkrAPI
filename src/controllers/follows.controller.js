@@ -2,11 +2,11 @@ import process from "../repositories/follows.repository.js";
 
 export async function following(req, res) {
   const user = res.locals.user.id;
-  const friend = req.body.id;
+  const friend = req.params.id;
   if (user == friend) return res.status(400).send({ ownUser: true, following: false });
   try {
     const result = await process.following(user, friend);
-    if (!result.length) return res.status(404).send({ ownUser: false, following: false });
+    if (!result.length) return res.status(204).send({ ownUser: false, following: false });
 
     return res.status(200).send({ ownUser: false, following: true });
   } catch (err) {
@@ -45,6 +45,8 @@ export async function unfollow(req, res) {
 export const getFollows = async (_, res) => {
   const userId = res.locals.user.id;
   try {
+    const response = await process.getFollowers(userId)
+    return res.status(200).json(response)
   } catch (err) {
     res.status(500).send(err.message);
   }
