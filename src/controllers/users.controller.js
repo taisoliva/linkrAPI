@@ -1,6 +1,6 @@
 import { findPostsByUserId } from "../repositories/posts.repository.js";
 import { findProfileByUserId, findUserByName } from "../repositories/users.repository.js";
-import getFollowers from "../repositories/follows.repository.js"
+import process from "../repositories/follows.repository.js";
 
 export async function getUserProfileById(req, res) {
   try {
@@ -26,16 +26,22 @@ export async function getUserProfileById(req, res) {
 export async function getUserByName(req, res) {
   const { id } = res.locals.user;
   const { name } = req.params;
-  try {
-    const follows = await getFollowers(id);
-    if (!follows.length) return res.sendStatus(404);
-    const found = await findUserByName(name);
-    if (!found.length) return res.sendStatus(404);
-    const result = follows.concat(found);
 
-    console.log(result);
+  try {
+
+    const follows = await process.getFollowers(id);
+
+    const found = await findUserByName(name);
+    let result = found;
+
+    if (follows.length > 0)
+      result = follows.concat(found);
+
+    if (result.length <= 0) return res.sendStatus(204);
+
     res.send(result);
   } catch (err) {
+    console.log(err)
     res.status(500).send(err.message);
   }
 }
