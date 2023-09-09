@@ -1,4 +1,4 @@
-# LinkrFront
+# LinkrBack
 
 Design of a social media application ! With the right to register, login, comment, like, post, search for users, filter by hashtags and more !
 
