@@ -1,31 +1,31 @@
-# LinkrBack
+# Linkr Back
 
-Design of a social media application ! With the right to register, login, comment, like, post, search for users, filter by hashtags and more !
+Design de um aplicativo de mídia social! Com direito a cadastro, login, comentar, curtir, postar, buscar usuários, filtrar por hashtags e muito mais!
 
 <img src="./src/configs/gif.gif" />
 
-Try it out now [here](https://linkr-iota.vercel.app) <br/>
-Check out the frontend too [here](https://github.com/jao45gg/linkr)
+Experimente agora [aqui](https://linkr-iota.vercel.app) <br/>
+Confira o back-end também [aqui](https://github.com/taisoliva/linkrAPI)
 
-## About
+## Sobre
 
-This is the Back-end of Linkr full-stack web application ! It's responsive, and does have data persistence, fell free to use and abuse it !
+Este é o front-end do aplicativo web full-stack Linkr! É responsivo e tem persistência de dados, fique à vontade para usar e abusar dele!
 
-Below are the implemented features:
+Abaixo estão os recursos implementados:
 
 - Sign Up
 - Login
 - LogOut
-- Search for user by name
-- Filter posts by hashtag
+- Pesquisar por user by name
+- Filtar posts por hashtag
 - Follow/Unfollow user
-- Delete your post
-- Edit your post
-- Much more !
+- Delete seu post
+- Editar seu post
+- Muito mais !
   
-By using this app any user can share a link on the internet and comment about it !
+Ao usar este aplicativo qualquer usuário pode compartilhar um link na internet e comentar sobre ele!
 
-## Technologies
+## Tecnologias
 The following tools and frameworks were used in the construction of the project, you can find the full list on the package.json:<br>
 <p>
   <img style='margin: 5px;' src='https://img.shields.io/badge/Node.js-339933.svg?style=for-the-badge&logo=nodedotjs&logoColor=white'>
@@ -42,12 +42,12 @@ The following tools and frameworks were used in the construction of the project,
 
 ## How to run
 
-1. Clone this repository
-2. Install dependencies
+1. Clone este repositorio
+2. Instale as dependências
 ```bash
 npm i
 ```
-3. Create a .env file on the root of the project with the following variables
+3. Crie um arquivo .env na raiz do projeto com as seguintes variáveis
 ```bash
 ACCESS_TOKEN_SECRET=yourSecret
 DATABASE_URL=yourDataBaseURL
@@ -55,12 +55,12 @@ PORT=YourBackEndPORT (optional, default is 5005)
 MODE=prod (ONLY WHEN IN PRODUCTION)
 REFRESH_TOKEN_SECRET=yourSecret
 ```
-3. Run the back-end with
+3. Rode o back end com 
 ```bash
 npm start
 ```
-4. You can optionally run the project with auto reload after changes
+4. Opcionalmente, você pode executar o projeto com reload automático após alterações
 ```bash
 npm run dev
 ```
-5. Finally send a request to http://localhost:YourBackEndPORT/SomeRouteImplemented and see it running !
+5. Por fim, envie uma requisição para http://localhost:YourBackEndPORT/SomeRouteImplemented e veja-o rodando!
