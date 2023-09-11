@@ -1,8 +1,8 @@
-# LinkrFront
+# Linkr Back
 
 Design de um aplicativo de mídia social! Com direito a cadastro, login, comentar, curtir, postar, buscar usuários, filtrar por hashtags e muito mais!
 
-<img src="./src/styles/gif.gif" />
+<img src="./src/configs/gif.gif" />
 
 Experimente agora [aqui](https://linkr-iota.vercel.app) <br/>
 Confira o back-end também [aqui](https://github.com/taisoliva/linkrAPI)
